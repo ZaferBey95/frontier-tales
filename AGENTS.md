@@ -1,5 +1,16 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Frontier Tales
+
+A single-player, timer-based Wild West RPG (iOS + web). The UI is in Turkish; code, comments and commit messages are in English.
+
+- `src/game/` is the game engine. Keep it plain TypeScript with no React, Expo or platform imports so it can later run on a server. Every action takes `(state, ..., now)` and returns a new state or a Turkish error message; never mutate the input state.
+- All tunable numbers live in `src/game/balance.ts`; content (jobs, items, NPCs, quests) lives in `src/game/content/`.
+- Randomness is seeded (`src/game/rng.ts`) so the same save always gives the same results. Never use `Math.random()` inside the engine.
+- If the shape of `GameState` changes, bump `SAVE_VERSION` and handle old saves in `src/game/save.ts`.
+- UI talks to the engine only through `useGame().act(...)` in `src/store/game.ts`.
+- Before finishing: `npm run typecheck`, `npm run lint`, `npm test`.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
