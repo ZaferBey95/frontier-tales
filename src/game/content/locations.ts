@@ -6,7 +6,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   town: {
     id: 'town',
     name: 'Coyote Creek',
-    icon: '🏘️',
     description: 'Tozlu sokakları, gıcırdayan salonu ve huysuz şerifiyle bölgenin kalbi.',
     x: 50,
     y: 50,
@@ -15,7 +14,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   ranch: {
     id: 'ranch',
     name: 'Miller Çiftliği',
-    icon: '🐄',
     description: 'Martha Miller’ın uçsuz bucaksız otlakları. Burada iş hiç bitmez.',
     x: 27,
     y: 36,
@@ -24,7 +22,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   forest: {
     id: 'forest',
     name: 'Çam Ormanı',
-    icon: '🌲',
     description: 'Tavşanların, geyiklerin ve zaman zaman ayıların yurdu.',
     x: 14,
     y: 12,
@@ -33,7 +30,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   river: {
     id: 'river',
     name: 'Yılan Nehri',
-    icon: '🏞️',
     description: 'Kıvrılarak akan soğuk sular. Yaşlı Pete hâlâ burada altın aradığına yemin eder.',
     x: 28,
     y: 76,
@@ -42,7 +38,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   mine: {
     id: 'mine',
     name: 'Gümüş Sırtı Madeni',
-    icon: '⛏️',
     description: 'Dağın içine oyulmuş karanlık tüneller. Maaşı iyi, havası kötü.',
     x: 80,
     y: 18,
@@ -51,7 +46,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   railroad: {
     id: 'railroad',
     name: 'Demiryolu Şantiyesi',
-    icon: '🛤️',
     description: 'Doğudan gelen raylar burada bitiyor, en azından şimdilik.',
     x: 86,
     y: 56,
@@ -60,7 +54,6 @@ export const LOCATIONS: Record<LocationId, LocationDef> = {
   canyon: {
     id: 'canyon',
     name: 'Kızıl Kanyon',
-    icon: '🏜️',
     description: 'Kanunun uğramadığı yer. Haydutlar bu kızıl kayaların arasında saklanır.',
     x: 64,
     y: 86,

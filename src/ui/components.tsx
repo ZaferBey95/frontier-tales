@@ -7,16 +7,17 @@ import {
   View,
   type StyleProp,
   type TextProps,
-  type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
-import { DISPLAY_FONT, MAX_WIDTH, radius, space, useTheme } from './theme';
+import type { GlyphName } from './art/glyphs';
+import { Glyph } from './art/icon';
+import { DISPLAY_FONT, MAX_WIDTH, radius, space, useTheme, type Palette } from './theme';
 
-type Tone = 'default' | 'muted' | 'accent' | 'success' | 'danger' | 'primary';
+export type Tone = 'default' | 'muted' | 'accent' | 'success' | 'danger' | 'primary';
 
-function useToneColor(tone: Tone): string {
-  const theme = useTheme();
+function toneColor(theme: Palette, tone: Tone): string {
   switch (tone) {
     case 'muted':
       return theme.textMuted;
@@ -31,6 +32,10 @@ function useToneColor(tone: Tone): string {
     default:
       return theme.text;
   }
+}
+
+export function useToneColor(tone: Tone): string {
+  return toneColor(useTheme(), tone);
 }
 
 interface LabelProps extends TextProps {
@@ -69,6 +74,33 @@ export function Title({ tone = 'default', size = 22, center, style, ...rest }: L
   );
 }
 
+/** A small icon followed by text, e.g. a coin and an amount. */
+export function IconText({
+  glyph,
+  children,
+  tone = 'default',
+  size = 14,
+  bold,
+  iconColor,
+}: {
+  glyph: GlyphName;
+  children: ReactNode;
+  tone?: Tone;
+  size?: number;
+  bold?: boolean;
+  iconColor?: string;
+}) {
+  const color = useToneColor(tone);
+  return (
+    <View style={styles.iconText}>
+      <Glyph name={glyph} size={Math.round(size * 1.1)} color={iconColor ?? color} />
+      <Label size={size} tone={tone} bold={bold}>
+        {children}
+      </Label>
+    </View>
+  );
+}
+
 export function Card({ children, style, highlight }: { children: ReactNode; style?: StyleProp<ViewStyle>; highlight?: boolean }) {
   const theme = useTheme();
   return (
@@ -92,11 +124,12 @@ interface ButtonProps {
   variant?: ButtonVariant;
   disabled?: boolean;
   small?: boolean;
+  glyph?: GlyphName;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled, small, style, accessibilityLabel }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', disabled, small, glyph, style, accessibilityLabel }: ButtonProps) {
   const theme = useTheme();
   const background: Record<ButtonVariant, string> = {
     primary: theme.primary,
@@ -110,6 +143,12 @@ export function Button({ label, onPress, variant = 'primary', disabled, small, s
     ghost: theme.primary,
     danger: theme.primaryText,
   };
+  const edge: Record<ButtonVariant, string> = {
+    primary: theme.primaryEdge,
+    secondary: theme.border,
+    ghost: 'transparent',
+    danger: theme.primaryEdge,
+  };
   return (
     <Pressable
       accessibilityRole="button"
@@ -122,11 +161,14 @@ export function Button({ label, onPress, variant = 'primary', disabled, small, s
         small && styles.buttonSmall,
         {
           backgroundColor: background[variant],
-          borderColor: variant === 'secondary' ? theme.border : 'transparent',
-          opacity: disabled ? 0.45 : pressed ? 0.75 : 1,
+          borderColor: edge[variant],
+          borderBottomWidth: variant === 'ghost' ? 0 : pressed ? 1 : 3,
+          marginTop: pressed && variant !== 'ghost' ? 2 : 0,
+          opacity: disabled ? 0.45 : 1,
         },
         style,
       ]}>
+      {glyph && <Glyph name={glyph} size={small ? 15 : 18} color={foreground[variant]} />}
       <Text style={[styles.buttonText, small && styles.buttonTextSmall, { color: foreground[variant] }]}>{label}</Text>
     </Pressable>
   );
@@ -142,8 +184,9 @@ export function Bar({ value, max, color, height = 8 }: { value: number; max: num
   );
 }
 
-export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+export function Chip({ label, selected, onPress, glyph }: { label: string; selected: boolean; onPress: () => void; glyph?: GlyphName }) {
   const theme = useTheme();
+  const color = selected ? theme.primaryText : theme.text;
   return (
     <Pressable
       accessibilityRole="button"
@@ -156,16 +199,18 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
           borderColor: selected ? theme.primary : theme.border,
         },
       ]}>
-      <Text style={[styles.chipText, { color: selected ? theme.primaryText : theme.text }]}>{label}</Text>
+      <Text style={[styles.chipText, { color }]}>{label}</Text>
+      {glyph && <Glyph name={glyph} size={13} color={selected ? theme.primaryText : theme.energy} />}
     </Pressable>
   );
 }
 
-export function Pill({ label, tone = 'default' }: { label: string; tone?: Tone }) {
+export function Pill({ label, tone = 'default', glyph, glyphColor }: { label: string; tone?: Tone; glyph?: GlyphName; glyphColor?: string }) {
   const theme = useTheme();
-  const color = useToneColor(tone);
+  const color = toneColor(theme, tone);
   return (
     <View style={[styles.pill, { backgroundColor: theme.surfaceAlt }]}>
+      {glyph && <Glyph name={glyph} size={12} color={glyphColor ?? color} />}
       <Text style={[styles.pillText, { color }]}>{label}</Text>
     </View>
   );
@@ -175,11 +220,25 @@ export function Row({ children, style, gap = space.sm }: { children: ReactNode; 
   return <View style={[styles.row, { gap }, style]}>{children}</View>;
 }
 
+/** A thin rule with a small diamond, like the flourishes on old posters. */
+export function Flourish() {
+  const theme = useTheme();
+  return (
+    <View style={styles.flourish}>
+      <View style={[styles.flourishLine, { backgroundColor: theme.border }]} />
+      <Svg width={12} height={12} viewBox="0 0 12 12">
+        <Path d="M6 0 L12 6 L6 12 L0 6 Z" fill={theme.accent} />
+      </Svg>
+      <View style={[styles.flourishLine, { backgroundColor: theme.border }]} />
+    </View>
+  );
+}
+
 export function Section({ title, children, right }: { title: string; children: ReactNode; right?: ReactNode }) {
   return (
     <View style={styles.section}>
       <Row style={styles.sectionHeader}>
-        <Title size={18} style={styles.flex}>
+        <Title size={19} style={styles.flex}>
           {title}
         </Title>
         {right}
@@ -206,14 +265,11 @@ export function Divider() {
   return <View style={[styles.divider, { backgroundColor: theme.border }]} />;
 }
 
-export function Emoji({ children, size = 22, style }: { children: string; size?: number; style?: StyleProp<TextStyle> }) {
-  return <Text style={[{ fontSize: size, lineHeight: Math.round(size * 1.25) }, style]}>{children}</Text>;
-}
-
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
   bold: { fontWeight: '700' },
   center: { textAlign: 'center' },
+  iconText: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   card: {
     borderWidth: 1,
     borderRadius: radius.lg,
@@ -226,23 +282,38 @@ export const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     borderRadius: radius.md,
     borderWidth: 1,
+    flexDirection: 'row',
+    gap: space.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonSmall: { minHeight: 34, paddingHorizontal: space.md },
+  buttonSmall: { minHeight: 36, paddingHorizontal: space.md },
   buttonText: { fontSize: 16, fontWeight: '700' },
   buttonTextSmall: { fontSize: 14 },
   barTrack: { width: '100%', overflow: 'hidden' },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: space.md,
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
   },
   chipText: { fontSize: 14, fontWeight: '600' },
-  pill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, alignSelf: 'flex-start' },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+  },
   pillText: { fontSize: 12, fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center' },
+  flourish: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  flourishLine: { flex: 1, height: 1 },
   section: { gap: space.sm },
   sectionHeader: { marginTop: space.sm },
   sectionBody: { gap: space.sm },

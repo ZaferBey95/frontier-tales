@@ -5,7 +5,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'sweep_saloon',
     name: 'Salonu süpür',
-    icon: '🧹',
     locationId: 'town',
     description: 'Dünkü kavgadan kalan kırık bardakları topla. Kimse sormaz, kimse söylemez.',
     weights: { strength: 1, charm: 1 },
@@ -18,7 +17,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'deliver_mail',
     name: 'Posta dağıt',
-    icon: '✉️',
     locationId: 'town',
     description: 'Kasabanın mektuplarını sahiplerine ulaştır. Bahçe köpeklerine dikkat.',
     weights: { agility: 1.5, charm: 0.5 },
@@ -31,7 +29,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'bartend',
     name: 'Barmenlik yap',
-    icon: '🍺',
     locationId: 'town',
     description: 'Viski doldur, dedikodu dinle. Kavga çıkarsa tezgâhın arkasına eğil.',
     weights: { charm: 1.5, agility: 0.5 },
@@ -46,7 +43,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'mend_fences',
     name: 'Çit onar',
-    icon: '🪵',
     locationId: 'ranch',
     description: 'Kaçan ineklerin çitlerde açtığı delikleri kapat.',
     weights: { strength: 1.5, agility: 0.5 },
@@ -59,7 +55,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'herd_cattle',
     name: 'Sığır güt',
-    icon: '🐄',
     locationId: 'ranch',
     description: 'Sürüyü otlaktan ağıla, ağıldan otlağa taşı. Geride kalan olmasın.',
     weights: { agility: 1.5, charm: 0.5 },
@@ -72,7 +67,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'break_horses',
     name: 'Yabani at terbiye et',
-    icon: '🐎',
     locationId: 'ranch',
     description: 'Eyere alışmamış mustangların sırtında kalmaya çalış.',
     weights: { agility: 1, strength: 1 },
@@ -87,7 +81,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'chop_wood',
     name: 'Odun kes',
-    icon: '🪓',
     locationId: 'forest',
     description: 'Kasabanın sobaları kış boyu yanacak. Balta senden, çam ağaçları ormandan.',
     weights: { strength: 2 },
@@ -100,7 +93,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'hunt_rabbits',
     name: 'Tavşan avla',
-    icon: '🐇',
     locationId: 'forest',
     description: 'Hızlıdırlar ama meraklıdırlar. Sabırlı ol, iyi nişan al.',
     weights: { aim: 1.5, agility: 0.5 },
@@ -113,7 +105,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'hunt_deer',
     name: 'Geyik avla',
-    icon: '🦌',
     locationId: 'forest',
     description: 'Rüzgârı arkana alma, yoksa kokunu alırlar.',
     weights: { aim: 1.5, strength: 0.5 },
@@ -131,7 +122,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'fish',
     name: 'Balık tut',
-    icon: '🎣',
     locationId: 'river',
     description: 'Oltanı at ve bekle. Alabalıklar sabahın erken saatlerinde aç olur.',
     weights: { agility: 1, aim: 1 },
@@ -144,7 +134,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'pan_gold',
     name: 'Altın ayıkla',
-    icon: '✨',
     locationId: 'river',
     description: 'Tavaya kum doldur, çalkala, parıltıyı ara. Çoğu zaman sadece kum çıkar.',
     weights: { agility: 1.5, strength: 0.5 },
@@ -157,7 +146,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'ferry',
     name: 'Sal ile yolcu taşı',
-    icon: '🛶',
     locationId: 'river',
     description: 'Yolcuları karşı kıyıya geçir. Sohbeti iyi olanın bahşişi de iyi olur.',
     weights: { strength: 1, charm: 1 },
@@ -172,7 +160,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'mine_silver',
     name: 'Gümüş kaz',
-    icon: '⛏️',
     locationId: 'mine',
     description: 'Kazmayı sallamaya devam et. Kanaryan şarkı söylediği sürece sorun yok.',
     weights: { strength: 2 },
@@ -185,7 +172,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'blast_rock',
     name: 'Dinamitle kaya patlat',
-    icon: '🧨',
     locationId: 'mine',
     description: 'Fitili yak ve koş. Yeterince hızlı koş.',
     weights: { agility: 1, strength: 1 },
@@ -203,7 +189,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'lay_track',
     name: 'Ray döşe',
-    icon: '🛤️',
     locationId: 'railroad',
     description: 'Traversleri diz, rayları çak. Batıya doğru her gün bir mil daha.',
     weights: { strength: 1.5, agility: 0.5 },
@@ -216,7 +201,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'guard_payroll',
     name: 'Maaş vagonunu koru',
-    icon: '💰',
     locationId: 'railroad',
     description: 'İşçilerin maaşı bu vagonda. Haydutlar da bunu biliyor.',
     weights: { aim: 1.5, charm: 0.5 },
@@ -231,7 +215,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'track_outlaws',
     name: 'Haydut izi sür',
-    icon: '🐾',
     locationId: 'canyon',
     description: 'Taze at izleri, sönmüş kamp ateşleri... Çete buralarda bir yerde.',
     weights: { agility: 1, aim: 1 },
@@ -244,7 +227,6 @@ export const JOB_LIST: JobDef[] = [
   {
     id: 'watch_smugglers',
     name: 'Kaçakçı yolunu gözetle',
-    icon: '🔭',
     locationId: 'canyon',
     description: 'Kayaların arasına saklan ve sınırdan gelen kervanları say.',
     weights: { aim: 1, charm: 1 },

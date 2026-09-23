@@ -14,7 +14,9 @@ import {
 } from '@/game';
 import { useNow } from '@/hooks/use-now';
 import { useGame } from '@/store/game';
-import { Button, Card, Emoji, Label, Pill, Row, Screen, Section } from '@/ui/components';
+import { Badge } from '@/ui/art/icon';
+import { LOCATION_ART, UI } from '@/ui/art/registry';
+import { Button, Card, IconText, Label, Pill, Row, Screen, Section } from '@/ui/components';
 import { countdown, duration } from '@/ui/format';
 import { space, useTheme } from '@/ui/theme';
 import { WorldMap } from '@/ui/world-map';
@@ -37,8 +39,8 @@ export default function MapScreen() {
     <Screen>
       <Card>
         {trip && trip.task.kind === 'travel' ? (
-          <Row>
-            <Emoji size={28}>🐎</Emoji>
+          <Row gap={space.md}>
+            <Badge glyph={LOCATION_ART[trip.task.to].glyph} tone={LOCATION_ART[trip.task.to].tone} size={44} corner={{ glyph: UI.travel, tone: 'gold' }} />
             <View style={styles.flex}>
               <Label bold>Yoldasın: {LOCATIONS[trip.task.to].name}</Label>
               <Label size={13} tone="muted">
@@ -47,8 +49,8 @@ export default function MapScreen() {
             </View>
           </Row>
         ) : (
-          <Row>
-            <Emoji size={28}>{here.icon}</Emoji>
+          <Row gap={space.md}>
+            <Badge glyph={LOCATION_ART[here.id].glyph} tone={LOCATION_ART[here.id].tone} size={44} />
             <View style={styles.flex}>
               <Label bold>Buradasın: {here.name}</Label>
               <Label size={13} tone="muted" numberOfLines={2}>
@@ -78,23 +80,24 @@ export default function MapScreen() {
                 styles.place,
                 { backgroundColor: theme.surface, borderColor: isHere ? theme.primary : theme.border, opacity: pressed ? 0.8 : 1 },
               ]}>
-              <Emoji size={26}>{location.icon}</Emoji>
+              <Badge glyph={LOCATION_ART[id].glyph} tone={LOCATION_ART[id].tone} size={44} shape="circle" />
               <View style={styles.flex}>
                 <Label bold>{location.name}</Label>
                 {isHere ? (
-                  <Pill label="Buradasın" tone="primary" />
+                  <Pill label="Buradasın" tone="primary" glyph={UI.done} />
                 ) : planned ? (
-                  <Pill label="Oraya gidiyorsun" tone="accent" />
+                  <Pill label="Oraya gidiyorsun" tone="accent" glyph={UI.travel} />
                 ) : (
-                  <Label size={13} tone="muted">
-                    🐎 {duration(ms)}
-                  </Label>
+                  <IconText glyph={UI.travel} tone="muted" size={13}>
+                    {duration(ms)}
+                  </IconText>
                 )}
               </View>
               {!isHere && !planned && (
                 <Button
                   small
                   variant="secondary"
+                  glyph={UI.travel}
                   label="Git"
                   onPress={() => act((state, at) => startTravel(state, id, at), `Yola çıktın: ${location.name}`)}
                 />

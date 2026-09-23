@@ -2,12 +2,12 @@ import type { EquipSlot, ItemDef } from '../types';
 
 export const SLOT_ORDER: EquipSlot[] = ['head', 'body', 'feet', 'weapon', 'horse'];
 
-export const SLOTS: Record<EquipSlot, { name: string; icon: string }> = {
-  head: { name: 'Şapka', icon: '🎩' },
-  body: { name: 'Giysi', icon: '🧥' },
-  feet: { name: 'Çizme', icon: '👢' },
-  weapon: { name: 'Silah', icon: '💥' },
-  horse: { name: 'Binek', icon: '🐎' },
+export const SLOTS: Record<EquipSlot, { name: string }> = {
+  head: { name: 'Şapka' },
+  body: { name: 'Giysi' },
+  feet: { name: 'Çizme' },
+  weapon: { name: 'Silah' },
+  horse: { name: 'Binek' },
 };
 
 export const ITEM_LIST: ItemDef[] = [
@@ -15,8 +15,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'straw_hat',
     name: 'Hasır Şapka',
-    icon: '👒',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'head',
     description: 'Güneşi keser, rüzgârda uçar.',
     price: 15,
@@ -27,8 +27,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'felt_hat',
     name: 'Keçe Kovboy Şapkası',
-    icon: '🎩',
     kind: 'equipment',
+    rarity: 'uncommon',
     slot: 'head',
     description: 'Geniş kenarlı, sağlam. Tam bir kovboy şapkası.',
     price: 65,
@@ -39,8 +39,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'sheriff_hat',
     name: 'Şerif Şapkası',
-    icon: '🎩',
     kind: 'equipment',
+    rarity: 'legendary',
     slot: 'head',
     description: 'Walt Hollis’in yedek şapkası. Taşıyanın sözü dinlenir.',
     value: 150,
@@ -50,8 +50,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'bowler_hat',
     name: 'Melon Şapka',
-    icon: '🎩',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'head',
     description: 'Doğulu iş adamlarının gözdesi. Kumar masasında şans getirdiği söylenir.',
     price: 380,
@@ -64,8 +64,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'patched_shirt',
     name: 'Yamalı Gömlek',
-    icon: '👕',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'body',
     description: 'Çok yol görmüş. Yamaların yamaları var.',
     price: 12,
@@ -76,8 +76,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'leather_vest',
     name: 'Deri Yelek',
-    icon: '🦺',
     kind: 'equipment',
+    rarity: 'uncommon',
     slot: 'body',
     description: 'Dayanıklı ve rahat. Cepleri de bol.',
     price: 85,
@@ -88,8 +88,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'duster_coat',
     name: 'Toz Paltosu',
-    icon: '🧥',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'body',
     description: 'Uzun, ağır ve rüzgârda dalgalanır. Toz fırtınasına karşı en iyi dostun.',
     price: 320,
@@ -100,8 +100,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'poncho',
     name: 'Meksika Pançosu',
-    icon: '🧣',
     kind: 'equipment',
+    rarity: 'epic',
     slot: 'body',
     description: 'Altında ne sakladığını kimse bilemez.',
     price: 540,
@@ -114,8 +114,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'old_boots',
     name: 'Eski Çizme',
-    icon: '👢',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'feet',
     description: 'Tabanı biraz su alıyor ama idare eder.',
     price: 18,
@@ -126,8 +126,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'spur_boots',
     name: 'Mahmuzlu Çizme',
-    icon: '👢',
     kind: 'equipment',
+    rarity: 'uncommon',
     slot: 'feet',
     description: 'Her adımda şıngırdar. Herkes geldiğini duyar.',
     price: 140,
@@ -138,8 +138,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'snakeskin_boots',
     name: 'Yılan Derisi Çizme',
-    icon: '👢',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'feet',
     description: 'Hem şık hem sağlam. Yılanlar bu çizmeden hoşlanmaz.',
     price: 460,
@@ -152,8 +152,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'bowie_knife',
     name: 'Av Bıçağı',
-    icon: '🔪',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'weapon',
     description: 'Uzun ve keskin. Yakın mesafede işe yarar.',
     price: 22,
@@ -165,8 +165,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'rusty_pistol',
     name: 'Paslı Tabanca',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'weapon',
     description: 'Her seferinde ateş almayabilir ama almadığı da pek olmaz.',
     price: 30,
@@ -177,8 +177,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'six_shooter',
     name: 'Altıpatlar',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'uncommon',
     slot: 'weapon',
     description: 'Batının en sevilen tabancası. Altı kurşun, altı fırsat.',
     price: 160,
@@ -190,8 +190,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'double_barrel',
     name: 'Çifte Kırma',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'weapon',
     description: 'İsabet etmesi zor, ettiğinde ise affetmez.',
     price: 380,
@@ -203,8 +203,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'hunting_rifle',
     name: 'Av Tüfeği',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'weapon',
     description: 'Uzun namlu, sağlam dipçik. Ağır ama isabetli.',
     price: 420,
@@ -216,8 +216,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'silver_revolver',
     name: 'Gümüş Kabzalı Revolver',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'legendary',
     slot: 'weapon',
     description: 'Yılan Carver’ın gözbebeği. Kabzasında bir çıngıraklı yılan işli.',
     value: 420,
@@ -228,8 +228,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'long_rifle',
     name: 'Keskin Nişancı Tüfeği',
-    icon: '💥',
     kind: 'equipment',
+    rarity: 'epic',
     slot: 'weapon',
     description: 'Dürbünüyle bir mil öteden sineğin kanadını vurur.',
     price: 1100,
@@ -243,8 +243,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'old_mule',
     name: 'Yaşlı Katır',
-    icon: '🐴',
     kind: 'equipment',
+    rarity: 'common',
     slot: 'horse',
     description: 'İnatçı ama sadık. Yürümekten iyidir.',
     price: 90,
@@ -255,8 +255,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'bay_horse',
     name: 'Doru At',
-    icon: '🐎',
     kind: 'equipment',
+    rarity: 'uncommon',
     slot: 'horse',
     description: 'Güçlü ve güvenilir bir çiftlik atı.',
     price: 320,
@@ -268,8 +268,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'mustang',
     name: 'Mustang',
-    icon: '🐎',
     kind: 'equipment',
+    rarity: 'rare',
     slot: 'horse',
     description: 'Ovaların vahşi ruhu. Evcilleştirmesi zor, yakalaması imkânsız.',
     price: 850,
@@ -281,8 +281,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'arabian',
     name: 'Arap Atı',
-    icon: '🐎',
     kind: 'equipment',
+    rarity: 'epic',
     slot: 'horse',
     description: 'Zarif, hızlı ve pahalı. Kasabadaki herkes dönüp bakar.',
     price: 2000,
@@ -296,8 +296,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'rabbit_pelt',
     name: 'Tavşan Postu',
-    icon: '🐇',
     kind: 'loot',
+    rarity: 'common',
     description: 'Yumuşacık. Eldiven yapmak için birebir.',
     value: 6,
     level: 1,
@@ -305,8 +305,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'fish',
     name: 'Alabalık',
-    icon: '🐟',
     kind: 'loot',
+    rarity: 'common',
     description: 'Taze ve parlak. Otelin aşçısı iyi para verir.',
     value: 4,
     level: 1,
@@ -314,8 +314,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'cowhide',
     name: 'İnek Derisi',
-    icon: '🐮',
     kind: 'loot',
+    rarity: 'common',
     description: 'Tabakhaneye götürülmeyi bekliyor.',
     value: 9,
     level: 1,
@@ -323,8 +323,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'deer_antler',
     name: 'Geyik Boynuzu',
-    icon: '🦌',
     kind: 'loot',
+    rarity: 'uncommon',
     description: 'Salonun duvarında çok iyi durur.',
     value: 16,
     level: 1,
@@ -332,8 +332,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'gold_nugget',
     name: 'Altın Parçası',
-    icon: '🪙',
     kind: 'loot',
+    rarity: 'rare',
     description: 'Küçük ama gerçek. Ceviz büyüklüğünde olanı hâlâ bulunmadı.',
     value: 45,
     level: 1,
@@ -341,8 +341,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'silver_ore',
     name: 'Gümüş Cevheri',
-    icon: '🪨',
     kind: 'loot',
+    rarity: 'uncommon',
     description: 'Parlak damarlarıyla ağır bir taş.',
     value: 22,
     level: 1,
@@ -350,8 +350,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'wanted_poster',
     name: 'Aranıyor İlanı',
-    icon: '📜',
     kind: 'loot',
+    rarity: 'common',
     description: 'Yırtık bir ilan. Üzerindeki yüz tanıdık geliyor.',
     value: 3,
     level: 1,
@@ -359,8 +359,8 @@ export const ITEM_LIST: ItemDef[] = [
   {
     id: 'pocket_watch',
     name: 'Cep Saati',
-    icon: '⌚',
     kind: 'loot',
+    rarity: 'rare',
     description: 'Arkasında bir baş harf kazınmış. Birisi onu arıyor olmalı.',
     value: 60,
     level: 1,

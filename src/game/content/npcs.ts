@@ -4,7 +4,6 @@ export const NPC_LIST: NpcDef[] = [
   {
     id: 'drunk_cowboy',
     name: 'Sarhoş Kovboy',
-    icon: '🥴',
     locationId: 'town',
     description: 'Salonun demirbaşı. Elleri titriyor ama tetiği nerede bulacağını hâlâ biliyor.',
     level: 1,
@@ -20,7 +19,6 @@ export const NPC_LIST: NpcDef[] = [
   {
     id: 'card_sharp',
     name: 'Hilebaz Kumarbaz',
-    icon: '🃏',
     locationId: 'town',
     description: 'Kolunda as, yeleğinde küçük bir tabanca. Kaybetmeyi hiç sevmez.',
     level: 4,
@@ -36,7 +34,6 @@ export const NPC_LIST: NpcDef[] = [
   {
     id: 'bandit_rookie',
     name: 'Acemi Haydut',
-    icon: '😤',
     locationId: 'canyon',
     description: 'Çeteye yeni katılmış, kendini kanıtlamak istiyor. Tehlikeli bir kombinasyon.',
     level: 5,
@@ -52,7 +49,6 @@ export const NPC_LIST: NpcDef[] = [
   {
     id: 'bandit_veteran',
     name: 'Kıdemli Haydut',
-    icon: '😠',
     locationId: 'canyon',
     description: 'Yüzü yara izleriyle dolu. Her birinin hikâyesini anlatmaya hazır.',
     level: 8,
@@ -71,7 +67,6 @@ export const NPC_LIST: NpcDef[] = [
   {
     id: 'snake_carver',
     name: 'Jed “Yılan” Carver',
-    icon: '🐍',
     locationId: 'canyon',
     description: 'Kızıl Kanyon çetesinin elebaşı. Söylentiye göre hiç düello kaybetmemiş.',
     level: 12,

@@ -82,3 +82,14 @@ describe('saves', () => {
     expect(() => settle(migrated!, T0 + HOUR)).not.toThrow();
   });
 });
+
+describe('save versions', () => {
+  it('upgrades version 1 saves by dropping emoji log icons', () => {
+    const old = JSON.parse(JSON.stringify(game()));
+    old.version = 1;
+    old.log[0].icon = '🌵';
+    const migrated = migrateSave(old);
+    expect(migrated?.version).toBe(2);
+    expect(migrated?.log[0]).not.toHaveProperty('icon');
+  });
+});

@@ -4,7 +4,7 @@ export * from './content';
 export * from './formulas';
 export * from './quests';
 export * from './actions';
-export { simulateDuel, hitChance, estimateWinChance, type DuelResult, type DuelRound } from './duel';
+export { simulateDuel, hitChance, estimateWinChance } from './duel';
 export { settle, needsSettle } from './simulation';
 export {
   newGame,

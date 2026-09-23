@@ -17,10 +17,12 @@ import {
 } from '@/game';
 import { useGame } from '@/store/game';
 import { showToast } from '@/store/toast';
-import { Button, Card, Chip, Emoji, Label, Pill, Row, Screen, Section } from '@/ui/components';
+import { Badge } from '@/ui/art/icon';
+import { UI } from '@/ui/art/registry';
+import { Button, Card, Chip, Label, Pill, Row, Screen, Section } from '@/ui/components';
 import { money, percent } from '@/ui/format';
 import { GameHeader } from '@/ui/game-header';
-import { itemStats } from '@/ui/item-stats';
+import { ItemBadge, ItemStatsRow, RarityTag } from '@/ui/item-view';
 import { space } from '@/ui/theme';
 
 export default function ShopScreen() {
@@ -49,7 +51,7 @@ export default function ShopScreen() {
       <Stack.Screen options={{ title: 'Genel Mağaza' }} />
       <Card>
         <Row gap={space.md}>
-          <Emoji size={36}>🏪</Emoji>
+          <Badge glyph={UI.shop} tone="leather" size={52} />
           <View style={styles.flex}>
             <Label bold>“Her şey satılır, dostum. Yeter ki paran olsun.”</Label>
             <Label size={13} tone="muted">
@@ -71,7 +73,7 @@ export default function ShopScreen() {
 
       {tab === 'buy' &&
         SLOT_ORDER.map((slot) => (
-          <Section key={slot} title={`${SLOTS[slot].icon} ${SLOTS[slot].name}`}>
+          <Section key={slot} title={SLOTS[slot].name}>
             {SHOP_ITEMS.filter((item) => item.slot === slot).map((item) => {
               const tooLow = character.level < item.level;
               const tooPoor = character.money < (item.price ?? 0);
@@ -79,23 +81,23 @@ export default function ShopScreen() {
               return (
                 <Card key={item.id}>
                   <Row gap={space.md}>
-                    <Emoji size={28}>{item.icon}</Emoji>
+                    <ItemBadge itemId={item.id} dimmed={tooLow} />
                     <View style={styles.flex}>
                       <Label bold>{item.name}</Label>
+                      <Row gap={space.xs}>
+                        <RarityTag itemId={item.id} />
+                        <Pill label={`Sv. ${item.level}`} tone={tooLow ? 'danger' : 'muted'} />
+                        {equipped && <Pill label="Üzerinde" tone="success" glyph={UI.done} />}
+                      </Row>
                       <Label size={13} tone="muted">
                         {item.description}
                       </Label>
                     </View>
                   </Row>
-                  <Row gap={space.xs} style={styles.wrap}>
-                    {itemStats(item).map((stat) => (
-                      <Pill key={stat} label={stat} />
-                    ))}
-                    <Pill label={`Sv. ${item.level}`} tone={tooLow ? 'danger' : 'muted'} />
-                    {equipped && <Pill label="Üzerinde" tone="success" />}
-                  </Row>
+                  <ItemStatsRow itemId={item.id} />
                   <Button
                     small
+                    glyph={tooLow ? UI.locked : UI.money}
                     label={tooLow ? `${item.level}. seviyede açılır` : `Satın al · ${money(item.price ?? 0)}`}
                     disabled={!open || tooLow || tooPoor}
                     onPress={() => buy(item)}
@@ -115,7 +117,7 @@ export default function ShopScreen() {
             return (
               <Card key={itemId}>
                 <Row gap={space.md}>
-                  <Emoji size={28}>{item.icon}</Emoji>
+                  <ItemBadge itemId={itemId} size={44} />
                   <View style={styles.flex}>
                     <Label bold>
                       {item.name} {count > 1 ? `×${count}` : ''}
@@ -157,6 +159,6 @@ export default function ShopScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, gap: 2 },
+  flex: { flex: 1, gap: 4 },
   wrap: { flexWrap: 'wrap' },
 });

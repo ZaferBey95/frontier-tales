@@ -1,15 +1,21 @@
 import { Redirect } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
-import { Text } from 'react-native';
+import type { ColorValue } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { activeQuests, availableQuests, questReady } from '@/game';
 import { useGame } from '@/store/game';
+import type { GlyphName } from '@/ui/art/glyphs';
+import { Glyph } from '@/ui/art/icon';
+import { UI } from '@/ui/art/registry';
 import { GameHeader } from '@/ui/game-header';
 import { useTheme } from '@/ui/theme';
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
-  return <Text style={{ fontSize: 20, lineHeight: 24, opacity: focused ? 1 : 0.55 }}>{emoji}</Text>;
+function tabIcon(name: GlyphName) {
+  function TabIcon({ color }: { color: ColorValue }) {
+    return <Glyph name={name} size={24} color={color} />;
+  }
+  return TabIcon;
 }
 
 export default function TabLayout() {
@@ -36,13 +42,13 @@ export default function TabLayout() {
       }}>
       <Tabs.Screen
         name="index"
-        options={{ title: 'Harita', tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} /> }}
+        options={{ title: 'Harita', tabBarIcon: tabIcon(UI.map) }}
       />
       <Tabs.Screen
         name="character"
         options={{
           title: 'Karakter',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🤠" focused={focused} />,
+          tabBarIcon: tabIcon(UI.character),
           tabBarBadge: game.character.attributePoints > 0 ? game.character.attributePoints : undefined,
         }}
       />
@@ -50,7 +56,7 @@ export default function TabLayout() {
         name="quests"
         options={{
           title: 'Görevler',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📜" focused={focused} />,
+          tabBarIcon: tabIcon(UI.quest),
           tabBarBadge: questsWaiting > 0 ? questsWaiting : undefined,
         }}
       />
@@ -58,7 +64,7 @@ export default function TabLayout() {
         name="log"
         options={{
           title: 'Günlük',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📰" focused={focused} />,
+          tabBarIcon: tabIcon(UI.log),
           tabBarBadge: unread > 0 ? unread : undefined,
         }}
       />

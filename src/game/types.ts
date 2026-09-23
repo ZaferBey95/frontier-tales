@@ -30,7 +30,6 @@ export interface ClassPerks {
 export interface ClassDef {
   id: ClassId;
   name: string;
-  icon: string;
   description: string;
   startBonus: Partial<Attributes>;
   perks: ClassPerks;
@@ -40,7 +39,6 @@ export interface AttributeDef {
   id: AttributeId;
   name: string;
   short: string;
-  icon: string;
   description: string;
 }
 
@@ -49,7 +47,6 @@ export type LocationService = 'shop' | 'hotel';
 export interface LocationDef {
   id: LocationId;
   name: string;
-  icon: string;
   description: string;
   /** Map position, both axes 0-100. */
   x: number;
@@ -66,7 +63,6 @@ export interface DropDef {
 export interface JobDef {
   id: string;
   name: string;
-  icon: string;
   locationId: LocationId;
   description: string;
   /** Attribute weights; they add up to 2. */
@@ -95,6 +91,8 @@ export interface JobDurationDef {
 
 export type ItemKind = 'equipment' | 'loot';
 
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
 export interface WeaponStats {
   min: number;
   max: number;
@@ -103,8 +101,8 @@ export interface WeaponStats {
 export interface ItemDef {
   id: string;
   name: string;
-  icon: string;
   kind: ItemKind;
+  rarity: Rarity;
   slot?: EquipSlot;
   description: string;
   /** Shop price. Items with no price are not sold in the shop. */
@@ -121,7 +119,6 @@ export interface ItemDef {
 export interface NpcDef {
   id: string;
   name: string;
-  icon: string;
   locationId: LocationId;
   description: string;
   level: number;
@@ -149,11 +146,13 @@ export interface QuestRewards {
   itemId?: string;
 }
 
+export type QuestGiverId = 'sheriff' | 'martha' | 'pete';
+
 export interface QuestDef {
   id: string;
   title: string;
   giver: string;
-  giverIcon: string;
+  giverId: QuestGiverId;
   story: string;
   /** Short line shown when the quest is turned in. */
   outro: string;
@@ -218,13 +217,56 @@ export interface QuestState {
 
 export type LogKind = 'job' | 'travel' | 'rest' | 'duel' | 'level' | 'quest' | 'shop' | 'system';
 
+/** What a log entry is about, so the UI can pick a picture for it. */
+export interface LogSubject {
+  type: 'job' | 'location' | 'npc' | 'quest';
+  id: string;
+}
+
+export interface ItemStack {
+  itemId: string;
+  count: number;
+}
+
+export interface LogRewards {
+  money?: number;
+  moneyLost?: number;
+  xp?: number;
+  items?: ItemStack[];
+  hpLost?: number;
+  hpGained?: number;
+  energy?: number;
+}
+
+export type DuelSide = 'player' | 'npc';
+export type DuelOutcome = 'win' | 'loss' | 'draw';
+
+export interface DuelRound {
+  round: number;
+  shooter: DuelSide;
+  hit: boolean;
+  damage: number;
+  playerHp: number;
+  npcHp: number;
+}
+
+export interface DuelResult {
+  outcome: DuelOutcome;
+  rounds: DuelRound[];
+  playerHp: number;
+  npcHp: number;
+}
+
 export interface LogEntry {
   id: string;
   at: number;
   kind: LogKind;
-  icon: string;
+  subject?: LogSubject;
   title: string;
+  /** Plain sentences, shown under the title. */
   lines: string[];
+  rewards?: LogRewards;
+  duel?: { npcId: string; outcome: DuelOutcome; startHp: number; rounds: DuelRound[] };
   read: boolean;
 }
 

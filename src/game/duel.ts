@@ -4,25 +4,7 @@
 import { DUEL_MAX_ROUNDS } from './balance';
 import { effectiveAttributes, perks, weaponOf } from './formulas';
 import { createRng, randomInt } from './rng';
-import type { Character, NpcDef, WeaponStats } from './types';
-
-export type Side = 'player' | 'npc';
-
-export interface DuelRound {
-  round: number;
-  shooter: Side;
-  hit: boolean;
-  damage: number;
-  playerHp: number;
-  npcHp: number;
-}
-
-export interface DuelResult {
-  outcome: 'win' | 'loss' | 'draw';
-  rounds: DuelRound[];
-  playerHp: number;
-  npcHp: number;
-}
+import type { Character, DuelResult, DuelRound, DuelSide, NpcDef, WeaponStats } from './types';
 
 interface Fighter {
   aim: number;
@@ -61,7 +43,7 @@ export function simulateDuel(character: Character, startHp: number, npc: NpcDef,
   let playerHp = startHp;
   let npcHp = npc.hp;
   const rounds: DuelRound[] = [];
-  const order: Side[] = player.agility >= enemy.agility ? ['player', 'npc'] : ['npc', 'player'];
+  const order: DuelSide[] = player.agility >= enemy.agility ? ['player', 'npc'] : ['npc', 'player'];
 
   for (let round = 1; round <= DUEL_MAX_ROUNDS; round++) {
     for (const shooter of order) {

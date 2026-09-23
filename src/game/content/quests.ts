@@ -1,8 +1,8 @@
 import type { QuestDef } from '../types';
 
-const SHERIFF = { giver: 'Şerif Walt Hollis', giverIcon: '⭐' };
-const MARTHA = { giver: 'Martha Miller', giverIcon: '👵' };
-const PETE = { giver: 'Yaşlı Pete', giverIcon: '🧔' };
+const SHERIFF = { giver: 'Şerif Walt Hollis', giverId: 'sheriff' } as const;
+const MARTHA = { giver: 'Martha Miller', giverId: 'martha' } as const;
+const PETE = { giver: 'Yaşlı Pete', giverId: 'pete' } as const;
 
 export const QUEST_LIST: QuestDef[] = [
   {

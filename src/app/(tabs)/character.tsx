@@ -15,10 +15,12 @@ import {
   xpToNext,
 } from '@/game';
 import { useGame } from '@/store/game';
-import { Bar, Button, Card, Emoji, Label, Pill, Row, Screen, Section, Title } from '@/ui/components';
+import { Badge, Glyph } from '@/ui/art/icon';
+import { ATTRIBUTE_ART, CLASS_ART, SLOT_GLYPHS } from '@/ui/art/registry';
+import { Bar, Button, Card, Label, Pill, Row, Screen, Section, Title } from '@/ui/components';
 import { confirm } from '@/ui/confirm';
 import { money, signed } from '@/ui/format';
-import { itemStats } from '@/ui/item-stats';
+import { ItemBadge, ItemStatsRow, RarityTag } from '@/ui/item-view';
 import { radius, space, useTheme } from '@/ui/theme';
 
 export default function CharacterScreen() {
@@ -30,6 +32,7 @@ export default function CharacterScreen() {
 
   const { character, stats } = game;
   const cls = CLASSES[character.classId];
+  const classArt = CLASS_ART[character.classId];
   const bonuses = attributeBonuses(character);
   const bag = Object.entries(character.inventory).filter(([, count]) => count > 0);
 
@@ -46,13 +49,11 @@ export default function CharacterScreen() {
     <Screen>
       <Card>
         <Row gap={space.md}>
-          <View style={[styles.portrait, { backgroundColor: theme.surfaceAlt, borderColor: theme.border }]}>
-            <Emoji size={44}>🤠</Emoji>
-          </View>
+          <Badge glyph="western-hat" tone={classArt.tone} size={84} corner={classArt} />
           <View style={styles.flex}>
             <Title size={24}>{character.name}</Title>
             <Label tone="muted">
-              {cls.icon} {cls.name} · {character.level}. seviye
+              {cls.name} · {character.level}. seviye
             </Label>
             <Label size={13} tone="muted">
               {cls.description}
@@ -87,7 +88,7 @@ export default function CharacterScreen() {
             const bonus = bonuses[attr];
             return (
               <Row key={attr} gap={space.md} style={styles.attrRow}>
-                <Emoji size={24}>{def.icon}</Emoji>
+                <Badge glyph={ATTRIBUTE_ART[attr].glyph} tone={ATTRIBUTE_ART[attr].tone} size={40} />
                 <View style={styles.flex}>
                   <Label bold>
                     {def.name}: {Math.max(0, base + bonus)}
@@ -121,7 +122,13 @@ export default function CharacterScreen() {
           return (
             <Card key={slot}>
               <Row gap={space.md}>
-                <Emoji size={26}>{item?.icon ?? SLOTS[slot].icon}</Emoji>
+                {item ? (
+                  <ItemBadge itemId={item.id} size={48} />
+                ) : (
+                  <View style={[styles.emptySlot, { borderColor: theme.border }]}>
+                    <Glyph name={SLOT_GLYPHS[slot]} size={26} color={theme.border} />
+                  </View>
+                )}
                 <View style={styles.flex}>
                   <Label size={12} tone="muted">
                     {SLOTS[slot].name}
@@ -129,11 +136,7 @@ export default function CharacterScreen() {
                   <Label bold={!!item} tone={item ? 'default' : 'muted'}>
                     {item ? item.name : 'Boş'}
                   </Label>
-                  {item && (
-                    <Label size={12} tone="muted">
-                      {itemStats(item).join(' · ')}
-                    </Label>
-                  )}
+                  {item && <ItemStatsRow itemId={item.id} />}
                 </View>
                 {item && (
                   <Button small variant="ghost" label="Çıkar" onPress={() => act((state, at) => unequipItem(state, slot, at))} />
@@ -152,15 +155,20 @@ export default function CharacterScreen() {
           return (
             <Card key={itemId}>
               <Row gap={space.md}>
-                <Emoji size={26}>{item.icon}</Emoji>
+                <ItemBadge itemId={itemId} size={48} />
                 <View style={styles.flex}>
                   <Label bold>
                     {item.name}
                     {count > 1 ? ` ×${count}` : ''}
                   </Label>
-                  <Label size={12} tone="muted">
-                    {item.kind === 'equipment' ? itemStats(item).join(' · ') || item.description : item.description}
-                  </Label>
+                  <RarityTag itemId={itemId} />
+                  {item.kind === 'equipment' ? (
+                    <ItemStatsRow itemId={itemId} />
+                  ) : (
+                    <Label size={12} tone="muted">
+                      {item.description}
+                    </Label>
+                  )}
                 </View>
                 {item.kind === 'equipment' && (
                   <Button
@@ -186,6 +194,9 @@ export default function CharacterScreen() {
         </Card>
       </Section>
 
+      <Label size={11} tone="muted" center>
+        İkonlar: game-icons.net (Lorc, Delapouite ve diğerleri), CC BY 3.0 · Yazı tipi: Sancreek, OFL
+      </Label>
       <Pressable accessibilityRole="button" onPress={reset} style={styles.reset}>
         <Label size={13} tone="danger" center>
           Oyunu sıfırla
@@ -208,11 +219,12 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, gap: 2 },
-  portrait: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.lg,
-    borderWidth: 1,
+  emptySlot: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
   },

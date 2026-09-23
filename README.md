@@ -22,6 +22,7 @@ Coyote Creek kasabasına yeni gelmiş bir yabancısın. İş bulup para kazanır
 - **Düellolar:** Sarhoş kovboydan çete lideri “Yılan” Carver’a kadar 5 rakip var. Düellolar tur tur hesaplanır.
 - **Hikâye görevleri:** Şerif Walt Hollis, Martha Miller ve Yaşlı Pete’ten 8 görevlik bir zincir.
 - **Enerji ve can:** Zamanla kendiliğinden dolar. Otelde dinlenirsen daha hızlı dolar.
+- **Görseller:** Elle çizilmiş SVG bölge haritası (dağlar, nehir, kanyon, demiryolu) ve her iş, eşya ve rakip için renkli rozet ikonları. Eşyalar nadirliğe göre renklenir (Sıradan, Kaliteli, Nadir, Destansı, Efsanevi).
 
 ## Telefonda nasıl oynanır?
 
@@ -74,8 +75,14 @@ src/
     tests/       Motor testleri
   app/           Ekranlar (Expo Router)
   ui/            Tema ve ortak bileşenler
+    art/         İkonlar, rozetler ve hangi içeriğin hangi resmi kullandığı
+    world-map.tsx  SVG ile çizilmiş bölge haritası
   store/         Kayıt ve durum yönetimi (zustand + AsyncStorage)
+scripts/
+  build-glyphs.mjs  Kullanılan ikonları game-icons setinden src/ui/art/glyphs.ts'e kopyalar
 ```
+
+Yeni bir ikon eklemek için adını `scripts/build-glyphs.mjs` içindeki listeye yaz, `npm run glyphs` çalıştır ve `src/ui/art/registry.ts` içinde kullan.
 
 Oyun kuralları `src/game` içinde, arayüzden tamamen bağımsız. Rastgelelik tohum (seed) ile üretildiği için aynı kayıt her zaman aynı sonucu verir. Online sürüme geçerken bu motoru sunucuya taşıyıp hileyi engelleyeceğiz.
 
@@ -86,10 +93,12 @@ Oyun kuralları `src/game` içinde, arayüzden tamamen bağımsız. Rastgelelik 
 - [ ] Online sürüm: üyelik, sunucuda çalışan oyun motoru (Supabase)
 - [ ] Oyuncular arası düello ve sıralama
 - [ ] Kasabalar (klanlar), kasaba sohbeti ve ortak binalar
-- [ ] Gerçek çizimler ve sesler
+- [ ] Karakter portreleri ve sahne çizimleri (sanatçı ya da görsel üretim aracıyla)
+- [ ] Sesler ve animasyonlar
 - [ ] App Store (TestFlight)
 
 ## Teşekkürler
 
+- İkonlar: [game-icons.net](https://game-icons.net), Lorc, Delapouite ve diğer katkıcılar. [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) lisansıyla kullanıldı, oyunda renklendirilip rozetlere yerleştirildi.
 - Başlık yazı tipi: [Sancreek](https://fonts.google.com/specimen/Sancreek) (SIL Open Font License)
-- Geçici görseller: sistem emojileri
+- Harita, uygulama simgesi ve rozet tasarımları bu proje için SVG olarak çizildi.

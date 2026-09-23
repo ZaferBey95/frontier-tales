@@ -1,8 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  CLASSES,
   JOB_DURATIONS,
   LOCATIONS,
   cancelTask,
@@ -16,23 +15,24 @@ import {
 import { useNow } from '@/hooks/use-now';
 import { useGame } from '@/store/game';
 
-import { Bar, Label, Row } from './components';
+import type { GlyphName } from './art/glyphs';
+import { Badge, Glyph } from './art/icon';
+import { CLASS_ART, LOCATION_ART, UI, jobArt, type Art } from './art/registry';
+import { Bar, IconText, Label, Row } from './components';
 import { confirm } from './confirm';
 import { countdown, duration, money } from './format';
 import { MAX_WIDTH, space, useTheme } from './theme';
 
-export function taskLabel(task: Task): { icon: string; text: string } {
+export function taskArt(task: Task): Art & { text: string } {
   switch (task.kind) {
-    case 'travel': {
-      const to = LOCATIONS[task.to];
-      return { icon: '🐎', text: `Yolculuk: ${to.name}` };
-    }
+    case 'travel':
+      return { ...LOCATION_ART[task.to], text: `Yolculuk: ${LOCATIONS[task.to].name}` };
     case 'job': {
       const job = getJob(task.jobId);
-      return { icon: job.icon, text: `${job.name} (${JOB_DURATIONS[task.duration].label})` };
+      return { ...jobArt(job.id, job.locationId), text: `${job.name} (${JOB_DURATIONS[task.duration].label})` };
     }
     case 'rest':
-      return { icon: '🛏️', text: 'Otelde dinlenme' };
+      return { glyph: UI.rest, tone: 'sky', text: 'Otelde dinlenme' };
   }
 }
 
@@ -46,6 +46,7 @@ export function GameHeader({ safeTop = false }: { safeTop?: boolean }) {
   const { character } = game;
   const vitals = vitalsAt(game, now);
   const need = xpToNext(character.level);
+  const classArt = CLASS_ART[character.classId];
 
   return (
     <View
@@ -55,17 +56,18 @@ export function GameHeader({ safeTop = false }: { safeTop?: boolean }) {
       ]}>
       <View style={styles.inner}>
         <Row>
+          <Badge glyph={classArt.glyph} tone={classArt.tone} size={26} shape="circle" />
           <Label bold style={styles.flex} numberOfLines={1}>
-            {CLASSES[character.classId].icon} {character.name} · Sv. {character.level}
+            {character.name} · Sv. {character.level}
           </Label>
-          <Label bold tone="accent">
-            💰 {money(character.money)}
-          </Label>
+          <IconText glyph={UI.money} tone="accent" bold size={15}>
+            {money(character.money)}
+          </IconText>
         </Row>
         <Row gap={space.md}>
-          <Meter icon="❤️" value={vitals.hp} max={vitals.hpMax} color={theme.hp} />
-          <Meter icon="⚡" value={vitals.energy} max={vitals.energyMax} color={theme.energy} />
-          <Meter icon="⭐" value={character.xp} max={need} color={theme.xp} />
+          <Meter glyph={UI.hp} label="Can" value={vitals.hp} max={vitals.hpMax} color={theme.hp} />
+          <Meter glyph={UI.energy} label="Enerji" value={vitals.energy} max={vitals.energyMax} color={theme.energy} />
+          <Meter glyph={UI.xp} label="Tecrübe" value={character.xp} max={need} color={theme.xp} />
         </Row>
         <TaskQueue game={game} now={now} />
       </View>
@@ -73,11 +75,11 @@ export function GameHeader({ safeTop = false }: { safeTop?: boolean }) {
   );
 }
 
-function Meter({ icon, value, max, color }: { icon: string; value: number; max: number; color: string }) {
+function Meter({ glyph, label, value, max, color }: { glyph: GlyphName; label: string; value: number; max: number; color: string }) {
   return (
-    <View style={styles.meter} accessible accessibilityLabel={`${icon} ${Math.floor(value)} / ${max}`}>
+    <View style={styles.meter} accessible accessibilityLabel={`${label} ${Math.floor(value)} / ${max}`}>
       <Row gap={4}>
-        <Text style={styles.meterIcon}>{icon}</Text>
+        <Glyph name={glyph} size={13} color={color} />
         <Label size={12} tone="muted">
           {Math.floor(value)}/{max}
         </Label>
@@ -94,9 +96,9 @@ function TaskQueue({ game, now }: { game: GameState; now: number }) {
 
   if (times.length === 0) {
     return (
-      <Label size={13} tone="muted">
-        💤 Boştasın. Haritadan bir iş seç ya da yola çık.
-      </Label>
+      <IconText glyph={UI.idle} tone="muted" size={13} iconColor={theme.accent}>
+        Boştasın. Haritadan bir iş seç ya da yola çık.
+      </IconText>
     );
   }
 
@@ -113,24 +115,26 @@ function TaskQueue({ game, now }: { game: GameState; now: number }) {
     <View style={styles.queue}>
       {times.map(({ task, start, end }, index) => {
         const running = index === 0;
-        const { icon, text } = taskLabel(task);
+        const art = taskArt(task);
         return (
-          <View key={task.id} style={[styles.task, { borderColor: theme.border, backgroundColor: running ? theme.surfaceAlt : 'transparent' }]}>
+          <View
+            key={task.id}
+            style={[styles.task, { borderColor: theme.border, backgroundColor: running ? theme.surfaceAlt : 'transparent' }]}>
             <Row>
-              <Text style={styles.taskIcon}>{icon}</Text>
+              <Badge glyph={art.glyph} tone={art.tone} size={22} />
               <Label size={13} bold={running} style={styles.flex} numberOfLines={1}>
-                {text}
+                {art.text}
               </Label>
               <Label size={13} tone={running ? 'accent' : 'muted'} bold={running}>
                 {running ? countdown(end - now) : `sırada · ${duration(end - start)}`}
               </Label>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`${text} iptal et`}
+                accessibilityLabel={`${art.text} iptal et`}
                 hitSlop={10}
                 onPress={() => cancel(task, running)}
                 style={styles.cancel}>
-                <Text style={[styles.cancelText, { color: theme.textMuted }]}>✕</Text>
+                <Glyph name={UI.cancel} size={16} color={theme.textMuted} />
               </Pressable>
             </Row>
             {running && <Bar value={now - start} max={end - start} color={theme.primary} height={4} />}
@@ -146,10 +150,7 @@ const styles = StyleSheet.create({
   inner: { width: '100%', maxWidth: MAX_WIDTH, gap: 6 },
   flex: { flex: 1 },
   meter: { flex: 1, gap: 2 },
-  meterIcon: { fontSize: 12 },
   queue: { gap: 4 },
-  task: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, gap: 4 },
-  taskIcon: { fontSize: 14 },
-  cancel: { paddingLeft: 6 },
-  cancelText: { fontSize: 14, fontWeight: '700' },
+  task: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 4, gap: 4 },
+  cancel: { paddingLeft: 4 },
 });

@@ -9,12 +9,12 @@ import {
   REST_ENERGY,
   REST_HP_SHARE,
 } from './balance';
-import { LOCATIONS, getItem, getJob } from './content';
+import { LOCATIONS, getJob } from './content';
 import { estimateJob, jobInjuryChance, maxHp, perks, regenerate } from './formulas';
 import { recordQuestEvent } from './quests';
 import { createRng, randomBetween } from './rng';
 import { addItem, addLog, cloneState, grantMoney, grantXp } from './state';
-import type { GameState, JobTask, RestTask, Task, TravelTask } from './types';
+import type { GameState, ItemStack, JobTask, RestTask, Task, TravelTask } from './types';
 
 /** True when at least one queued task has finished by `now`. */
 export function needsSettle(state: GameState, now: number): boolean {
@@ -68,7 +68,7 @@ function resolveTravel(state: GameState, task: TravelTask, at: number): void {
   addLog(state, {
     at,
     kind: 'travel',
-    icon: location.icon,
+    subject: { type: 'location', id: task.to },
     title: `${location.name} bölgesine vardın`,
     lines: [location.description],
   });
@@ -96,20 +96,20 @@ function resolveJob(state: GameState, task: JobTask, at: number): void {
     }
   }
 
-  const lines: string[] = [`+$${money}`, `+${xp} tecrübe`];
+  const items: ItemStack[] = [];
   for (const [itemId, count] of Object.entries(found)) {
     addItem(state, itemId, count);
-    lines.push(`Buldun: ${getItem(itemId).icon} ${getItem(itemId).name}${count > 1 ? ` ×${count}` : ''}`);
+    items.push({ itemId, count });
   }
 
+  let hpLost = 0;
   const injuryChance = jobInjuryChance(estimate.points, job.danger, Math.min(duration.dropRolls, 3));
   if (job.danger > 0 && rng() < injuryChance) {
     const lengthFactor = 1 + 0.3 * JOB_DURATION_ORDER.indexOf(task.duration);
     const damage = Math.round(maxHp(character) * job.danger * randomBetween(rng, 0.3, 1) * lengthFactor);
     const before = character.hp;
     character.hp = Math.max(1, character.hp - damage);
-    const lost = Math.round(before - character.hp);
-    if (lost > 0) lines.push(`Yaralandın: -${lost} can`);
+    hpLost = Math.round(before - character.hp);
   }
 
   grantMoney(state, money);
@@ -117,9 +117,10 @@ function resolveJob(state: GameState, task: JobTask, at: number): void {
   addLog(state, {
     at,
     kind: 'job',
-    icon: job.icon,
+    subject: { type: 'job', id: job.id },
     title: `${job.name} (${duration.label}) bitti`,
-    lines,
+    lines: hpLost > 0 ? ['İş sırasında yaralandın.'] : [],
+    rewards: { money, xp, items, ...(hpLost > 0 ? { hpLost } : {}) },
   });
   grantXp(state, xp, at);
   recordQuestEvent(state, { kind: 'job', jobId: job.id, locationId: job.locationId });
@@ -127,14 +128,19 @@ function resolveJob(state: GameState, task: JobTask, at: number): void {
 
 function resolveRest(state: GameState, _task: RestTask, at: number): void {
   const character = state.character;
+  const hpBefore = character.hp;
+  const energyBefore = character.energy;
   const hpMax = maxHp(character);
   character.hp = Math.min(hpMax, character.hp + hpMax * REST_HP_SHARE);
   character.energy = Math.min(MAX_ENERGY, character.energy + REST_ENERGY);
   addLog(state, {
     at,
     kind: 'rest',
-    icon: '🛏️',
     title: 'Otelde dinlendin',
-    lines: [`+${REST_ENERGY} enerji`, `+%${Math.round(REST_HP_SHARE * 100)} can`],
+    lines: ['Yumuşak bir yatak ve sıcak bir yemek. Kendini yeniden doğmuş gibi hissediyorsun.'],
+    rewards: {
+      energy: Math.round(character.energy - energyBefore),
+      hpGained: Math.round(character.hp - hpBefore),
+    },
   });
 }

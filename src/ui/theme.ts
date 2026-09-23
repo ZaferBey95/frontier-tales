@@ -8,6 +8,7 @@ export interface Palette {
   text: string;
   textMuted: string;
   primary: string;
+  primaryEdge: string;
   primaryText: string;
   accent: string;
   success: string;
@@ -16,9 +17,29 @@ export interface Palette {
   energy: string;
   xp: string;
   track: string;
-  mapLand: string;
-  mapRoad: string;
-  mapWater: string;
+  map: MapPalette;
+}
+
+export interface MapPalette {
+  land: string;
+  edge: string;
+  grass: string;
+  desert: string;
+  rock: string;
+  rockLight: string;
+  rockShade: string;
+  mountain: string;
+  mountainShade: string;
+  snow: string;
+  tree: string;
+  treeShade: string;
+  trunk: string;
+  water: string;
+  waterLight: string;
+  bank: string;
+  road: string;
+  rail: string;
+  ink: string;
 }
 
 const light: Palette = {
@@ -29,6 +50,7 @@ const light: Palette = {
   text: '#2E1D10',
   textMuted: '#7A5E40',
   primary: '#9C3D1E',
+  primaryEdge: '#6A2711',
   primaryText: '#FFF6E5',
   accent: '#A87412',
   success: '#4E7A2E',
@@ -37,9 +59,27 @@ const light: Palette = {
   energy: '#D49A1F',
   xp: '#4F74A8',
   track: '#E2D2AE',
-  mapLand: '#E9D3A4',
-  mapRoad: '#B8976A',
-  mapWater: '#7FA7C4',
+  map: {
+    land: '#EBD6A6',
+    edge: '#B98F55',
+    grass: '#A9B46E',
+    desert: '#E7B26E',
+    rock: '#C0673E',
+    rockLight: '#D98A5A',
+    rockShade: '#8E4222',
+    mountain: '#A08D74',
+    mountainShade: '#6F604F',
+    snow: '#F7F1E3',
+    tree: '#4F6B3A',
+    treeShade: '#36502A',
+    trunk: '#5B3B22',
+    water: '#6E9CBE',
+    waterLight: '#B3D2E6',
+    bank: '#8C7A55',
+    road: '#A07A50',
+    rail: '#4A3626',
+    ink: '#5A4027',
+  },
 };
 
 const dark: Palette = {
@@ -50,6 +90,7 @@ const dark: Palette = {
   text: '#F3E6CC',
   textMuted: '#B9A07E',
   primary: '#C9582E',
+  primaryEdge: '#8A3515',
   primaryText: '#FFF6E5',
   accent: '#E0B04A',
   success: '#86AD60',
@@ -58,9 +99,27 @@ const dark: Palette = {
   energy: '#E3AE3A',
   xp: '#7C9FD4',
   track: '#3D2E20',
-  mapLand: '#3A2A1B',
-  mapRoad: '#6E5436',
-  mapWater: '#3F6581',
+  map: {
+    land: '#3A2B1D',
+    edge: '#150E08',
+    grass: '#4A5634',
+    desert: '#6A4B2A',
+    rock: '#8C4A2C',
+    rockLight: '#A5603B',
+    rockShade: '#5E2E19',
+    mountain: '#5E5244',
+    mountainShade: '#40372D',
+    snow: '#CFC7B6',
+    tree: '#3E5530',
+    treeShade: '#2A3B20',
+    trunk: '#3E2A18',
+    water: '#3F6581',
+    waterLight: '#7EA3BD',
+    bank: '#2E2519',
+    road: '#7A5E3E',
+    rail: '#120C08',
+    ink: '#C9AE84',
+  },
 };
 
 export const palettes = { light, dark };

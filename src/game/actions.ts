@@ -11,7 +11,7 @@ import {
   REST_MS,
   restCost,
 } from './balance';
-import { ITEMS, JOBS, LOCATIONS, NPCS, QUESTS, getItem } from './content';
+import { ITEMS, JOBS, LOCATIONS, NPCS, QUESTS } from './content';
 import { simulateDuel } from './duel';
 import { estimateJob, maxHp, sellPrice, travelMs, xpWithPerk } from './formulas';
 import { questAvailable, questReady, recordQuestEvent } from './quests';
@@ -34,6 +34,7 @@ import type {
   AttributeId,
   EquipSlot,
   GameState,
+  ItemStack,
   JobDurationId,
   LocationId,
   Task,
@@ -210,28 +211,35 @@ export function duel(state: GameState, npcId: string, now: number): ActionResult
   if (character.energy < DUEL_ENERGY) return fail(`Düello ${DUEL_ENERGY} enerji ister. Yeterli enerjin yok.`);
 
   character.energy -= DUEL_ENERGY;
+  const startHp = character.hp;
   const seed = takeSeed(s);
-  const result = simulateDuel(character, character.hp, npc, seed);
+  const result = simulateDuel(character, startHp, npc, seed);
   const rewardRng = createRng(seed ^ 0x5bd1e995);
+  const duelLog = { npcId: npc.id, outcome: result.outcome, startHp: Math.round(startHp), rounds: result.rounds };
+  const subject = { type: 'npc' as const, id: npc.id };
 
-  const summary: string[] = [];
-  let title: string;
   if (result.outcome === 'win') {
     const money = randomInt(rewardRng, npc.moneyMin, npc.moneyMax);
     const xp = xpWithPerk(character, npc.xp);
-    character.hp = Math.max(1, result.playerHp);
-    grantMoney(s, money);
-    s.stats.duelsWon += 1;
-    title = `${npc.name} ile düelloyu kazandın!`;
-    summary.push(`+$${money}`, `+${xp} tecrübe`);
+    const items: ItemStack[] = [];
     for (const drop of npc.drops) {
       if (rewardRng() < drop.chance) {
         addItem(s, drop.itemId);
-        summary.push(`Ganimet: ${getItem(drop.itemId).icon} ${getItem(drop.itemId).name}`);
+        items.push({ itemId: drop.itemId, count: 1 });
       }
     }
-    summary.push(`Kalan canın: ${Math.round(character.hp)}`);
-    const logId = pushDuelLog(s, now, '🏆', title, summary, result.rounds, npc.name);
+    character.hp = Math.max(1, result.playerHp);
+    grantMoney(s, money);
+    s.stats.duelsWon += 1;
+    const logId = addLog(s, {
+      at: now,
+      kind: 'duel',
+      subject,
+      title: `${npc.name} ile düelloyu kazandın!`,
+      lines: ['Rakibin tozun içinde yatarken şapkanı düzelttin.'],
+      rewards: { money, xp, items, hpLost: Math.round(startHp - character.hp) },
+      duel: duelLog,
+    });
     grantXp(s, xp, now);
     recordQuestEvent(s, { kind: 'duelWin', npcId: npc.id, locationId: npc.locationId });
     return { ok: true, state: s, logId };
@@ -242,36 +250,29 @@ export function duel(state: GameState, npcId: string, now: number): ActionResult
     character.money -= lost;
     character.hp = 1;
     s.stats.duelsLost += 1;
-    title = `${npc.name} seni yere serdi`;
-    summary.push('Gözlerini açtığında her yer dönüyordu.');
-    if (lost > 0) summary.push(`Cebinden $${lost} alınmış.`);
-  } else {
-    character.hp = Math.max(1, result.playerHp);
-    title = `${npc.name} ile düello berabere bitti`;
-    summary.push('İkiniz de mermisiz kaldınız ve kendi yolunuza gittiniz.');
+    const logId = addLog(s, {
+      at: now,
+      kind: 'duel',
+      subject,
+      title: `${npc.name} seni yere serdi`,
+      lines: ['Gözlerini açtığında her yer dönüyordu.'],
+      rewards: { hpLost: Math.round(startHp - 1), ...(lost > 0 ? { moneyLost: lost } : {}) },
+      duel: duelLog,
+    });
+    return { ok: true, state: s, logId };
   }
-  const logId = pushDuelLog(s, now, result.outcome === 'loss' ? '🤕' : '🤝', title, summary, result.rounds, npc.name);
-  return { ok: true, state: s, logId };
-}
 
-function pushDuelLog(
-  state: GameState,
-  at: number,
-  icon: string,
-  title: string,
-  summary: string[],
-  rounds: ReturnType<typeof simulateDuel>['rounds'],
-  npcName: string,
-): string {
-  const roundLines = rounds.map((r) => {
-    if (r.shooter === 'player') {
-      return r.hit ? `🎯 ${r.round}. tur: Vurdun! -${r.damage} (${npcName}: ${r.npcHp})` : `💨 ${r.round}. tur: Iskaladın.`;
-    }
-    return r.hit
-      ? `🩸 ${r.round}. tur: ${npcName} seni vurdu! -${r.damage} (Sen: ${Math.round(r.playerHp)})`
-      : `💨 ${r.round}. tur: ${npcName} ıskaladı.`;
+  character.hp = Math.max(1, result.playerHp);
+  const logId = addLog(s, {
+    at: now,
+    kind: 'duel',
+    subject,
+    title: `${npc.name} ile düello berabere bitti`,
+    lines: ['İkiniz de mermisiz kaldınız ve kendi yolunuza gittiniz.'],
+    rewards: { hpLost: Math.round(startHp - character.hp) },
+    duel: duelLog,
   });
-  return addLog(state, { at, kind: 'duel', icon, title, lines: [...summary, '', ...roundLines] });
+  return { ok: true, state: s, logId };
 }
 
 export function acceptQuest(state: GameState, questId: string, now: number): ActionResult {
@@ -295,15 +296,16 @@ export function turnInQuest(state: GameState, questId: string, now: number): Act
   const { money, itemId } = quest.rewards;
   const xp = xpWithPerk(s.character, quest.rewards.xp);
   grantMoney(s, money);
-  const lines = [quest.outro, ''];
-  if (money > 0) lines.push(`+$${money}`);
-  if (xp > 0) lines.push(`+${xp} tecrübe`);
-  if (itemId) {
-    addItem(s, itemId);
-    lines.push(`Ödül: ${getItem(itemId).icon} ${getItem(itemId).name}`);
-  }
+  if (itemId) addItem(s, itemId);
   s.quests[questId].status = 'done';
-  const logId = addLog(s, { at: now, kind: 'quest', icon: '📜', title: `Görev tamamlandı: ${quest.title}`, lines });
+  const logId = addLog(s, {
+    at: now,
+    kind: 'quest',
+    subject: { type: 'quest', id: questId },
+    title: `Görev tamamlandı: ${quest.title}`,
+    lines: [quest.outro],
+    rewards: { money, xp, items: itemId ? [{ itemId, count: 1 }] : [] },
+  });
   grantXp(s, xp, now);
   return { ok: true, state: s, logId };
 }

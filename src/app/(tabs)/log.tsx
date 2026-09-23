@@ -4,8 +4,11 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useNow } from '@/hooks/use-now';
 import { useGame } from '@/store/game';
-import { Card, Emoji, Label, Row, Screen } from '@/ui/components';
+import { Badge } from '@/ui/art/icon';
+import { logArt } from '@/ui/art/registry';
+import { Card, Label, Row, Screen } from '@/ui/components';
 import { timeAgo } from '@/ui/format';
+import { Rewards } from '@/ui/rewards';
 import { space, useTheme } from '@/ui/theme';
 
 export default function LogScreen() {
@@ -28,38 +31,50 @@ export default function LogScreen() {
           </Label>
         </Card>
       )}
-      {game.log.map((entry) => (
-        <Pressable
-          key={entry.id}
-          accessibilityRole="button"
-          onPress={() => router.push({ pathname: '/report/[id]', params: { id: entry.id } })}
-          style={({ pressed }) => [
-            styles.entry,
-            {
-              backgroundColor: theme.surface,
-              borderColor: entry.read ? theme.border : theme.accent,
-              opacity: pressed ? 0.8 : 1,
-            },
-          ]}>
-          <Row gap={space.md}>
-            <Emoji size={26}>{entry.icon}</Emoji>
-            <View style={styles.flex}>
-              <Label bold={!entry.read}>{entry.title}</Label>
-              <Label size={13} tone="muted" numberOfLines={1}>
-                {entry.lines.filter(Boolean).slice(0, 3).join(' · ')}
-              </Label>
-            </View>
-            <Label size={12} tone="muted">
-              {timeAgo(entry.at, now)}
-            </Label>
-          </Row>
-        </Pressable>
-      ))}
+      {game.log.map((entry) => {
+        const art = logArt(entry);
+        return (
+          <Pressable
+            key={entry.id}
+            accessibilityRole="button"
+            onPress={() => router.push({ pathname: '/report/[id]', params: { id: entry.id } })}
+            style={({ pressed }) => [
+              styles.entry,
+              {
+                backgroundColor: theme.surface,
+                borderColor: entry.read ? theme.border : theme.accent,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}>
+            <Row gap={space.md} style={styles.top}>
+              <Badge glyph={art.glyph} tone={art.tone} size={44} corner={art.corner} />
+              <View style={styles.flex}>
+                <Row>
+                  <Label bold={!entry.read} style={styles.flex} numberOfLines={2}>
+                    {entry.title}
+                  </Label>
+                  <Label size={12} tone="muted">
+                    {timeAgo(entry.at, now)}
+                  </Label>
+                </Row>
+                {entry.rewards ? (
+                  <Rewards rewards={entry.rewards} />
+                ) : (
+                  <Label size={13} tone="muted" numberOfLines={1}>
+                    {entry.lines[0]}
+                  </Label>
+                )}
+              </View>
+            </Row>
+          </Pressable>
+        );
+      })}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, gap: 2 },
+  flex: { flex: 1, gap: 6 },
+  top: { alignItems: 'flex-start' },
   entry: { borderWidth: 1, borderRadius: 12, padding: space.md },
 });

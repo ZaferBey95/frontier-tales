@@ -15,7 +15,6 @@ import {
   duel,
   estimateJob,
   estimateWinChance,
-  getItem,
   isTravelling,
   jobsAt,
   npcsAt,
@@ -35,10 +34,13 @@ import {
 } from '@/game';
 import { useNow } from '@/hooks/use-now';
 import { useGame } from '@/store/game';
-import { Button, Card, Chip, Emoji, Label, Pill, Row, Screen, Section, Title } from '@/ui/components';
+import { Badge } from '@/ui/art/icon';
+import { ATTRIBUTE_ART, LOCATION_ART, UI, jobArt, npcArt } from '@/ui/art/registry';
+import { Button, Card, Chip, Label, Pill, Row, Screen, Section, Title } from '@/ui/components';
 import { duration, money, percent, signed } from '@/ui/format';
 import { GameHeader } from '@/ui/game-header';
-import { space } from '@/ui/theme';
+import { ItemChip } from '@/ui/rewards';
+import { space, useTheme } from '@/ui/theme';
 
 export default function LocationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -57,6 +59,7 @@ export default function LocationScreen() {
     );
   }
 
+  const art = LOCATION_ART[location.id];
   const travelling = isTravelling(game);
   const here = !travelling && game.character.locationId === location.id;
   const heading = projectedLocation(game) === location.id && !here;
@@ -70,19 +73,20 @@ export default function LocationScreen() {
 
       <Card>
         <Row gap={space.md}>
-          <Emoji size={44}>{location.icon}</Emoji>
+          <Badge glyph={art.glyph} tone={art.tone} size={64} />
           <View style={styles.flex}>
             <Title size={22}>{location.name}</Title>
             <Label tone="muted">{location.description}</Label>
           </View>
         </Row>
         {here ? (
-          <Pill label="Buradasın" tone="primary" />
+          <Pill label="Buradasın" tone="primary" glyph="check-mark" />
         ) : heading ? (
-          <Pill label="Oraya gidiyorsun" tone="accent" />
+          <Pill label="Oraya gidiyorsun" tone="accent" glyph={UI.travel} />
         ) : (
           <Button
-            label={`Buraya git · 🐎 ${duration(travelMs(game.character, projectedLocation(game), location.id))}`}
+            glyph={UI.travel}
+            label={`Buraya git · ${duration(travelMs(game.character, projectedLocation(game), location.id))}`}
             onPress={() => act((state, at) => startTravel(state, location.id, at), `Yola çıktın: ${location.name}`)}
           />
         )}
@@ -90,8 +94,8 @@ export default function LocationScreen() {
 
       {location.services.includes('shop') && (
         <Card>
-          <Row>
-            <Emoji size={28}>🏪</Emoji>
+          <Row gap={space.md}>
+            <Badge glyph={UI.shop} tone="leather" size={44} />
             <View style={styles.flex}>
               <Label bold>Genel Mağaza</Label>
               <Label size={13} tone="muted">
@@ -101,7 +105,7 @@ export default function LocationScreen() {
           </Row>
           <Button
             variant="secondary"
-            label={here ? 'Mağazaya gir' : 'Mağazaya girmek için buraya gel'}
+            label={here ? 'Mağazaya gir' : 'Mağaza için kasabada olmalısın'}
             disabled={!here}
             onPress={() => router.push('/shop')}
           />
@@ -110,8 +114,8 @@ export default function LocationScreen() {
 
       {location.services.includes('hotel') && (
         <Card>
-          <Row>
-            <Emoji size={28}>🛏️</Emoji>
+          <Row gap={space.md}>
+            <Badge glyph={UI.rest} tone="sky" size={44} />
             <View style={styles.flex}>
               <Label bold>Otel</Label>
               <Label size={13} tone="muted">
@@ -121,6 +125,7 @@ export default function LocationScreen() {
           </Row>
           <Button
             variant="secondary"
+            glyph={UI.money}
             label={`Oda tut · ${money(restCost(game.character.level))}`}
             onPress={() => act((state, at) => startRest(state, at), 'Otelde bir oda tuttun.')}
           />
@@ -132,7 +137,8 @@ export default function LocationScreen() {
           {JOB_DURATION_ORDER.map((d) => (
             <Chip
               key={d}
-              label={`${JOB_DURATIONS[d].label} · ⚡${JOB_DURATIONS[d].energy}`}
+              label={`${JOB_DURATIONS[d].label} · ${JOB_DURATIONS[d].energy}`}
+              glyph={UI.energy}
               selected={durationId === d}
               onPress={() => setDurationId(d)}
             />
@@ -146,12 +152,7 @@ export default function LocationScreen() {
             durationId={durationId}
             here={projectedLocation(game) === location.id}
             energy={vitals.energy}
-            onStart={() =>
-              act(
-                (state, at) => startJob(state, job.id, durationId, at),
-                `Sıraya eklendi: ${job.name}`,
-              )
-            }
+            onStart={() => act((state, at) => startJob(state, job.id, durationId, at), `Sıraya eklendi: ${job.name}`)}
           />
         ))}
       </Section>
@@ -192,10 +193,12 @@ function JobCard({
   energy: number;
   onStart: () => void;
 }) {
+  const theme = useTheme();
   const estimate = estimateJob(character, job, durationId);
-  const helpful = ATTRIBUTE_ORDER.filter((attr) => (job.weights[attr] ?? 0) > 0)
-    .sort((a, b) => (job.weights[b] ?? 0) - (job.weights[a] ?? 0))
-    .map((attr) => `${ATTRIBUTES[attr].icon} ${ATTRIBUTES[attr].name}`);
+  const art = jobArt(job.id, job.locationId);
+  const helpful = ATTRIBUTE_ORDER.filter((attr) => (job.weights[attr] ?? 0) > 0).sort(
+    (a, b) => (job.weights[b] ?? 0) - (job.weights[a] ?? 0),
+  );
 
   let label = here ? 'Başla' : 'Git ve başla';
   if (!estimate.canDo) label = 'Becerin henüz yetmiyor';
@@ -204,7 +207,7 @@ function JobCard({
   return (
     <Card>
       <Row gap={space.md}>
-        <Emoji size={30}>{job.icon}</Emoji>
+        <Badge glyph={art.glyph} tone={art.tone} size={52} dimmed={!estimate.canDo} />
         <View style={styles.flex}>
           <Label bold>{job.name}</Label>
           <Label size={13} tone="muted">
@@ -212,20 +215,29 @@ function JobCard({
           </Label>
         </View>
       </Row>
-      <Label size={13} tone="muted">
-        İşe yarayan: {helpful.join(', ')}
-      </Label>
       <Row gap={space.xs} style={styles.wrap}>
+        {helpful.map((attr) => (
+          <Pill key={attr} label={ATTRIBUTES[attr].name} glyph={ATTRIBUTE_ART[attr].glyph} tone="muted" />
+        ))}
         <Pill label={`İş puanı ${signed(estimate.points)}`} tone={estimate.canDo ? 'success' : 'danger'} />
-        <Pill label={`💰 ~${money(estimate.money)}`} tone="accent" />
-        <Pill label={`⭐ ${estimate.xp} XP`} />
-        <Pill label={`⚡ ${estimate.energy}`} />
-        {job.danger > 0 && <Pill label={`🩹 ${percent(estimate.injuryChance)}`} tone="danger" />}
+      </Row>
+      <Row gap={space.xs} style={styles.wrap}>
+        <Pill label={`~${money(estimate.money)}`} glyph={UI.money} glyphColor={theme.accent} />
+        <Pill label={`${estimate.xp} XP`} glyph={UI.xp} glyphColor={theme.xp} />
+        <Pill label={`${estimate.energy}`} glyph={UI.energy} glyphColor={theme.energy} />
+        {job.danger > 0 && (
+          <Pill label={`Yaralanma ${percent(estimate.injuryChance)}`} glyph={UI.injury} tone="danger" />
+        )}
       </Row>
       {job.drops.length > 0 && (
-        <Label size={13} tone="muted">
-          Bulunabilir: {job.drops.map((drop) => `${getItem(drop.itemId).icon} ${getItem(drop.itemId).name}`).join(', ')}
-        </Label>
+        <View style={styles.drops}>
+          <Label size={12} tone="muted">
+            Bulunabilir:
+          </Label>
+          {job.drops.map((drop) => (
+            <ItemChip key={drop.itemId} itemId={drop.itemId} size={20} />
+          ))}
+        </View>
       )}
       <Button small label={label} disabled={!estimate.canDo || energy < estimate.energy} onPress={onStart} />
     </Card>
@@ -245,43 +257,48 @@ function NpcCard({
   hp: number;
   onDuel: () => void;
 }) {
+  const theme = useTheme();
   const hpBucket = Math.floor(hp / 5) * 5;
   const character = game.character;
   const chance = useMemo(() => estimateWinChance(character, Math.max(1, hpBucket), npc), [character, hpBucket, npc]);
   const busy = game.queue.length > 0;
+  const art = npcArt(npc.id);
 
-  let label = `Düello et · ⚡${DUEL_ENERGY}`;
+  let label = `Düello et · ${DUEL_ENERGY} enerji`;
   if (!here) label = 'Düello için buraya gel';
   else if (busy) label = 'Önce sıradaki işlerini bitir';
 
   return (
     <Card>
       <Row gap={space.md}>
-        <Emoji size={32}>{npc.icon}</Emoji>
+        <Badge glyph={art.glyph} tone={art.tone} size={56} shape="circle" />
         <View style={styles.flex}>
           <Label bold>{npc.name}</Label>
-          <Label size={13} tone="muted">
-            Sv. {npc.level} · ❤️ {npc.hp}
-          </Label>
+          <Row gap={space.xs}>
+            <Pill label={`Sv. ${npc.level}`} tone="muted" />
+            <Pill label={`${npc.hp}`} glyph={UI.hp} glyphColor={theme.hp} />
+          </Row>
         </View>
       </Row>
       <Label size={13} tone="muted">
         {npc.description}
       </Label>
       <Row gap={space.xs} style={styles.wrap}>
-        <Pill label={`💰 ${money(npc.moneyMin)}–${money(npc.moneyMax)}`} tone="accent" />
-        <Pill label={`⭐ ${npc.xp} XP`} />
+        <Pill label={`${money(npc.moneyMin)}–${money(npc.moneyMax)}`} glyph={UI.money} glyphColor={theme.accent} />
+        <Pill label={`${npc.xp} XP`} glyph={UI.xp} glyphColor={theme.xp} />
         <Pill
           label={`Kazanma şansı ~${percent(chance)}`}
+          glyph={UI.win}
           tone={chance >= 0.7 ? 'success' : chance >= 0.4 ? 'accent' : 'danger'}
         />
       </Row>
-      <Button small label={label} disabled={!here || busy} onPress={onDuel} />
+      <Button small glyph={UI.draw} label={label} disabled={!here || busy} onPress={onDuel} />
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, gap: 2 },
+  flex: { flex: 1, gap: 4 },
   wrap: { flexWrap: 'wrap' },
+  drops: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
 });

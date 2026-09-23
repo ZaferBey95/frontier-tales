@@ -12,6 +12,12 @@ export function migrateSave(raw: unknown): GameState | null {
   if (typeof state.version !== 'number' || state.version > SAVE_VERSION) return null;
   if (!state.character || !Array.isArray(state.queue) || !Array.isArray(state.log)) return null;
 
+  // Version 2: log entries lost their emoji icon in favour of structured data.
+  if (state.version < 2) {
+    for (const entry of state.log) delete (entry as { icon?: string }).icon;
+    state.version = 2;
+  }
+
   // Drop references to content that no longer exists.
   const character = state.character;
   if (!LOCATIONS[character.locationId]) character.locationId = 'town';

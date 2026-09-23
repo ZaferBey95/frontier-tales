@@ -60,7 +60,7 @@ export function newGame(rawName: string, classId: ClassId, now: number, seed: nu
   addLog(state, {
     at: now,
     kind: 'system',
-    icon: '🌵',
+    subject: { type: 'location', id: 'town' },
     title: 'Coyote Creek’e vardın',
     lines: [
       'Posta arabası seni kasabanın ortasına bırakıp tozu dumana katarak uzaklaştı.',
@@ -125,7 +125,6 @@ export function grantXp(state: GameState, amount: number, at: number): number[] 
     addLog(state, {
       at,
       kind: 'level',
-      icon: '🎉',
       title: `Seviye atladın: ${level}. seviye!`,
       lines: [`+${ATTRIBUTE_POINTS_PER_LEVEL} özellik puanı kazandın.`, 'Canın tamamen doldu.'],
     });

@@ -2,7 +2,7 @@
 
 import type { JobDurationDef, JobDurationId } from './types';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export const START_MONEY = 30;
 export const START_ATTRIBUTE_POINTS = 3;

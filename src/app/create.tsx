@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CLASSES, CLASS_ORDER, NAME_MAX, validateName, type ClassId } from '@/game';
 import { useGame } from '@/store/game';
-import { Button, Card, Emoji, Label, Screen, Title } from '@/ui/components';
+import { Badge } from '@/ui/art/icon';
+import { CLASS_ART } from '@/ui/art/registry';
+import { Button, Card, Flourish, Label, Screen, Title } from '@/ui/components';
 import { radius, space, useTheme } from '@/ui/theme';
 
 export default function CreateCharacterScreen() {
@@ -25,10 +27,11 @@ export default function CreateCharacterScreen() {
   return (
     <Screen contentStyle={{ paddingTop: insets.top + space.xl }}>
       <View style={styles.hero}>
-        <Emoji size={64}>🤠</Emoji>
-        <Title size={34} center>
+        <Badge glyph="western-hat" tone="rust" size={96} shape="circle" />
+        <Title size={36} center>
           Frontier Tales
         </Title>
+        <Flourish />
         <Label tone="muted" center>
           Vahşi Batı’nın tozlu yollarında kendi hikâyeni yaz. Çalış, keşfet, düello yap ve efsaneye dönüş.
         </Label>
@@ -74,7 +77,7 @@ export default function CreateCharacterScreen() {
                   borderColor: selected ? theme.primary : theme.border,
                 },
               ]}>
-              <Emoji size={32}>{cls.icon}</Emoji>
+              <Badge glyph={CLASS_ART[id].glyph} tone={CLASS_ART[id].tone} size={52} />
               <View style={styles.classText}>
                 <Title size={18}>{cls.name}</Title>
                 <Label size={14} tone="muted">
