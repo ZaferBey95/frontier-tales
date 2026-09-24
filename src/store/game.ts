@@ -20,9 +20,14 @@ import { showToast } from './toast';
 
 type Action = (state: GameState, now: number) => ActionResult;
 
+export type MapMode = '2d' | '3d';
+
 interface GameStore {
   game: GameState | null;
   hydrated: boolean;
+  /** Which map the player prefers where 3D is available. */
+  mapMode: MapMode;
+  setMapMode: (mode: MapMode) => void;
   startGame: (name: string, classId: ClassId) => void;
   /** Runs an engine action, stores the result and shows errors as a toast. */
   act: (action: Action, successMessage?: string) => ActionResult | null;
@@ -37,6 +42,8 @@ export const useGame = create<GameStore>()(
     (set, get) => ({
       game: null,
       hydrated: false,
+      mapMode: '3d',
+      setMapMode: (mapMode) => set({ mapMode }),
       startGame: (name, classId) => {
         const seed = Math.floor(Math.random() * 2 ** 32);
         set({ game: newGame(name, classId, Date.now(), seed) });
@@ -70,10 +77,14 @@ export const useGame = create<GameStore>()(
       name: 'frontier-tales-save',
       version: 1,
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ game: state.game }),
+      partialize: (state) => ({ game: state.game, mapMode: state.mapMode }),
       merge: (persisted, current) => {
-        const saved = (persisted as { game?: unknown } | undefined)?.game;
-        return { ...current, game: saved ? migrateSave(saved) : null };
+        const saved = persisted as { game?: unknown; mapMode?: MapMode } | undefined;
+        return {
+          ...current,
+          game: saved?.game ? migrateSave(saved.game) : null,
+          mapMode: saved?.mapMode === '2d' ? '2d' : current.mapMode,
+        };
       },
       onRehydrateStorage: () => () => {
         useGame.setState({ hydrated: true });

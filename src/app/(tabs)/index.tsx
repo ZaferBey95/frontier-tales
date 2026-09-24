@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 
 import {
   LOCATIONS,
@@ -16,17 +17,25 @@ import { useNow } from '@/hooks/use-now';
 import { useGame } from '@/store/game';
 import { Badge } from '@/ui/art/icon';
 import { LOCATION_ART, UI } from '@/ui/art/registry';
-import { Button, Card, IconText, Label, Pill, Row, Screen, Section } from '@/ui/components';
+import { Button, Card, Chip, IconText, Label, Pill, Row, Screen, Section } from '@/ui/components';
 import { countdown, duration } from '@/ui/format';
+import { MAP_3D_AVAILABLE, WorldMap3D } from '@/ui/map3d/world-map-3d';
 import { space, useTheme } from '@/ui/theme';
 import { WorldMap } from '@/ui/world-map';
 
 export default function MapScreen() {
   const game = useGame((s) => s.game);
   const act = useGame((s) => s.act);
+  const mapMode = useGame((s) => s.mapMode);
+  const setMapMode = useGame((s) => s.setMapMode);
   const theme = useTheme();
+  const night = useColorScheme() === 'dark';
   const now = useNow();
+  const [webglFailed, setWebglFailed] = useState(false);
   if (!game) return null;
+
+  const can3D = MAP_3D_AVAILABLE && !webglFailed;
+  const show3D = can3D && mapMode === '3d';
 
   const openLocation = (id: LocationId) => router.push({ pathname: '/location/[id]', params: { id } });
   const here = LOCATIONS[game.character.locationId];
@@ -62,7 +71,22 @@ export default function MapScreen() {
         )}
       </Card>
 
-      <WorldMap game={game} now={now} onSelect={openLocation} />
+      {can3D && (
+        <Row gap={space.xs} style={styles.modes}>
+          <Chip label="3D harita" glyph={UI.map} selected={mapMode === '3d'} onPress={() => setMapMode('3d')} />
+          <Chip label="Düz harita" selected={mapMode === '2d'} onPress={() => setMapMode('2d')} />
+        </Row>
+      )}
+      {show3D ? (
+        <View style={styles.mapBlock}>
+          <WorldMap3D game={game} night={night} onSelect={openLocation} onUnavailable={() => setWebglFailed(true)} />
+          <Label size={12} tone="muted" center>
+            Döndürmek için sürükle, yakınlaştırmak için iki parmakla sıkıştır. Bir yere dokunarak aç.
+          </Label>
+        </View>
+      ) : (
+        <WorldMap game={game} now={now} onSelect={openLocation} />
+      )}
 
       <Section title="Yerler">
         {sorted.map((id) => {
@@ -112,6 +136,8 @@ export default function MapScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, gap: 2 },
+  modes: { justifyContent: 'flex-end', marginBottom: -space.sm },
+  mapBlock: { gap: space.xs },
   place: {
     flexDirection: 'row',
     alignItems: 'center',

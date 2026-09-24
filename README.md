@@ -22,6 +22,7 @@ Coyote Creek kasabasına yeni gelmiş bir yabancısın. İş bulup para kazanır
 - **Düellolar:** Sarhoş kovboydan çete lideri “Yılan” Carver’a kadar 5 rakip var. Düellolar tur tur hesaplanır.
 - **Hikâye görevleri:** Şerif Walt Hollis, Martha Miller ve Yaşlı Pete’ten 8 görevlik bir zincir.
 - **Enerji ve can:** Zamanla kendiliğinden dolar. Otelde dinlenirsen daha hızlı dolar.
+- **3D harita:** Tarayıcı sürümünde low-poly bir 3D bölge haritası var: dağlar, nehir, kanyon, kasaba, maden ve lokomotif. Parmakla döndürülür ve yakınlaştırılır. Yolculukta atlı kovboyun yol boyunca ilerler. Gece modunda pencereler ve kamp ateşleri yanar. İstenirse düz haritaya geçilebilir.
 - **Görseller:** Elle çizilmiş SVG bölge haritası (dağlar, nehir, kanyon, demiryolu) ve her iş, eşya ve rakip için renkli rozet ikonları. Eşyalar nadirliğe göre renklenir (Sıradan, Kaliteli, Nadir, Destansı, Efsanevi).
 
 ## Telefonda nasıl oynanır?
@@ -76,7 +77,9 @@ src/
   app/           Ekranlar (Expo Router)
   ui/            Tema ve ortak bileşenler
     art/         İkonlar, rozetler ve hangi içeriğin hangi resmi kullandığı
-    world-map.tsx  SVG ile çizilmiş bölge haritası
+    map3d/       three.js ile 3D harita (sadece web; uygulamada düz harita gösterilir)
+    map-data.ts  İki haritanın ortak coğrafyası: yollar, nehir, dağlar, kayalar, ağaçlar
+    world-map.tsx  SVG ile çizilmiş düz bölge haritası
   store/         Kayıt ve durum yönetimi (zustand + AsyncStorage)
 scripts/
   build-glyphs.mjs  Kullanılan ikonları game-icons setinden src/ui/art/glyphs.ts'e kopyalar
@@ -100,5 +103,6 @@ Oyun kuralları `src/game` içinde, arayüzden tamamen bağımsız. Rastgelelik 
 ## Teşekkürler
 
 - İkonlar: [game-icons.net](https://game-icons.net), Lorc, Delapouite ve diğer katkıcılar. [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) lisansıyla kullanıldı, oyunda renklendirilip rozetlere yerleştirildi.
+- 3D grafikler: [three.js](https://threejs.org) (MIT lisansı)
 - Başlık yazı tipi: [Sancreek](https://fonts.google.com/specimen/Sancreek) (SIL Open Font License)
-- Harita, uygulama simgesi ve rozet tasarımları bu proje için SVG olarak çizildi.
+- Harita, 3D modeller, uygulama simgesi ve rozet tasarımları bu proje için kodla çizildi.

@@ -10,6 +10,7 @@ A single-player, timer-based Wild West RPG (iOS + web). The UI is in Turkish; co
 - If the shape of `GameState` changes, bump `SAVE_VERSION` and handle old saves in `src/game/save.ts`.
 - UI talks to the engine only through `useGame().act(...)` in `src/store/game.ts`.
 - No emoji in the UI. Pictures come from `src/ui/art/`: icons are copied from game-icons.net (CC BY 3.0) by `scripts/build-glyphs.mjs` (`npm run glyphs`), and `registry.ts` maps every location, job, item, NPC and class to a glyph and colour tone.
+- The 3D map (`src/ui/map3d/`) is web-only three.js built from code, no model files; `world-map-3d.tsx` is the native stand-in and the flat map is the fallback. Both maps read their geography from `src/ui/map-data.ts`.
 - Before finishing: `npm run typecheck`, `npm run lint`, `npm test`.
 
 ## Expo has changed — do not trust your training data

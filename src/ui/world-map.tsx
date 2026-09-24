@@ -19,106 +19,46 @@ import Svg, {
 import { LOCATIONS, LOCATION_ORDER, taskTimes, type GameState, type LocationId } from '@/game';
 import { createRng } from '@/game/rng';
 
+import {
+  CACTI,
+  CREEK,
+  MESAS,
+  PEAKS,
+  RAILROAD,
+  RIVER,
+  ROADS,
+  TREES,
+  beziersToSvg,
+  locationPoint,
+  roadControl,
+} from './map-data';
 import { GLYPHS, type GlyphName } from './art/glyphs';
 import { Badge } from './art/icon';
 import { LOCATION_ART } from './art/registry';
 import { DISPLAY_FONT, radius, useTheme, type MapPalette } from './theme';
 
 const SIZE = 1000;
-const at = (id: LocationId) => ({ x: LOCATIONS[id].x * 10, y: LOCATIONS[id].y * 10 });
-
-const ROADS: [LocationId, LocationId, number][] = [
-  ['town', 'ranch', 0.12],
-  ['town', 'river', -0.1],
-  ['town', 'mine', 0.08],
-  ['town', 'railroad', -0.08],
-  ['town', 'canyon', 0.1],
-  ['ranch', 'forest', -0.15],
-  ['ranch', 'river', 0.12],
-];
-
-const RAILROAD: [number, number][] = [
-  [1000, 650],
-  [930, 605],
-  [860, 560],
-  [850, 450],
-  [832, 330],
-  [805, 205],
-];
-
-const RIVER = 'M -20 575 C 110 610, 190 700, 262 800 S 405 955, 530 1020';
-const CREEK = 'M 205 170 C 240 290, 160 380, 150 470 S 110 575, 70 600';
-
-// [x, base y, width, height, snow cap]
-const PEAKS: [number, number, number, number, boolean][] = [
-  [600, 105, 120, 85, false],
-  [665, 165, 150, 120, false],
-  [745, 120, 170, 150, true],
-  [890, 115, 190, 175, true],
-  [985, 210, 150, 125, true],
-  [700, 250, 120, 85, false],
-  [900, 300, 150, 110, false],
-  [975, 360, 120, 90, false],
-];
-
-// [x, base y, width, height]
-const MESAS: [number, number, number, number][] = [
-  [705, 760, 110, 45],
-  [520, 845, 100, 42],
-  [790, 915, 150, 70],
-  [560, 975, 170, 58],
-  [900, 985, 190, 60],
-];
-
-const CACTI: [number, number, number][] = [
-  [470, 640, 40],
-  [585, 575, 34],
-  [735, 690, 44],
-  [915, 770, 38],
-  [390, 915, 36],
-  [640, 440, 30],
-  [960, 470, 34],
-];
+const K = SIZE / 100;
 
 function roadPath(a: LocationId, b: LocationId, bend: number): string {
-  const p = at(a);
-  const q = at(b);
-  const mx = (p.x + q.x) / 2;
-  const my = (p.y + q.y) / 2;
-  const dx = q.x - p.x;
-  const dy = q.y - p.y;
-  return `M ${p.x} ${p.y} Q ${mx - dy * bend} ${my + dx * bend} ${q.x} ${q.y}`;
+  const p = locationPoint(a);
+  const q = locationPoint(b);
+  const c = roadControl(a, b, bend);
+  return `M ${p.x * K} ${p.y * K} Q ${c.x * K} ${c.y * K} ${q.x * K} ${q.y * K}`;
 }
 
 function railPath(): string {
-  return RAILROAD.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+  return RAILROAD.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x * K} ${p.y * K}`).join(' ');
 }
 
-/** Pine trees scattered over the forest and a few near the farm. */
-function makeTrees(): { x: number; y: number; s: number }[] {
-  const rng = createRng(7);
-  const trees: { x: number; y: number; s: number }[] = [];
-  const forest = at('forest');
-  let tries = 0;
-  while (trees.length < 46 && tries < 2000) {
-    tries += 1;
-    const x = 25 + rng() * 330;
-    const y = 30 + rng() * 280;
-    const near = Math.hypot(x - forest.x, y - forest.y);
-    if (near < 62 || (Math.abs(x - forest.x) < 70 && y > forest.y && y < forest.y + 95)) continue;
-    if (Math.hypot(x - 180, y - 160) > 200) continue;
-    trees.push({ x, y, s: 20 + rng() * 16 });
-  }
-  trees.push({ x: 390, y: 420, s: 24 }, { x: 150, y: 330, s: 22 }, { x: 330, y: 560, s: 22 });
-  return trees.sort((a, b) => a.y - b.y);
-}
+const RIVER_PATH = beziersToSvg(RIVER, K);
+const CREEK_PATH = beziersToSvg(CREEK, K);
 
 function makeSpeckles(): { x: number; y: number; r: number }[] {
   const rng = createRng(11);
   return Array.from({ length: 220 }, () => ({ x: rng() * SIZE, y: rng() * SIZE, r: 1 + rng() * 2.2 }));
 }
 
-const TREES = makeTrees();
 const SPECKLES = makeSpeckles();
 
 function Glyph({ name, x, y, size, color, opacity = 1 }: { name: GlyphName; x: number; y: number; size: number; color: string; opacity?: number }) {
@@ -223,10 +163,10 @@ const Terrain = memo(function Terrain({ c, id }: { c: MapPalette; id: string }) 
       ))}
 
       {/* Water */}
-      <Path d={RIVER} stroke={c.bank} strokeWidth={36} fill="none" opacity={0.35} strokeLinecap="round" />
-      <Path d={RIVER} stroke={c.water} strokeWidth={22} fill="none" strokeLinecap="round" />
-      <Path d={RIVER} stroke={c.waterLight} strokeWidth={5} fill="none" strokeDasharray="34 46" strokeLinecap="round" />
-      <Path d={CREEK} stroke={c.water} strokeWidth={8} fill="none" strokeLinecap="round" />
+      <Path d={RIVER_PATH} stroke={c.bank} strokeWidth={36} fill="none" opacity={0.35} strokeLinecap="round" />
+      <Path d={RIVER_PATH} stroke={c.water} strokeWidth={22} fill="none" strokeLinecap="round" />
+      <Path d={RIVER_PATH} stroke={c.waterLight} strokeWidth={5} fill="none" strokeDasharray="34 46" strokeLinecap="round" />
+      <Path d={CREEK_PATH} stroke={c.water} strokeWidth={8} fill="none" strokeLinecap="round" />
 
       {/* Roads and railway */}
       {ROADS.map(([a, b, bend]) => (
@@ -241,20 +181,20 @@ const Terrain = memo(function Terrain({ c, id }: { c: MapPalette; id: string }) 
 
       {/* Mountains, mesas and plants */}
       {[...PEAKS]
-        .sort((a, b) => a[1] - b[1])
-        .map(([x, base, w, h, snow], index) => (
-          <Peak key={index} x={x} base={base} w={w} h={h} snow={snow} c={c} />
+        .sort((a, b) => a.base - b.base)
+        .map((peak, index) => (
+          <Peak key={index} x={peak.x * K} base={peak.base * K} w={peak.width * K} h={peak.height * K} snow={peak.snow} c={c} />
         ))}
       {[...MESAS]
-        .sort((a, b) => a[1] - b[1])
-        .map(([x, base, w, h], index) => (
-          <Mesa key={index} x={x} base={base} w={w} h={h} c={c} />
+        .sort((a, b) => a.base - b.base)
+        .map((mesa, index) => (
+          <Mesa key={index} x={mesa.x * K} base={mesa.base * K} w={mesa.width * K} h={mesa.height * K} c={c} />
         ))}
       {TREES.map((tree, index) => (
-        <Pine key={index} x={tree.x} y={tree.y} s={tree.s} c={c} />
+        <Pine key={index} x={tree.x * K} y={tree.y * K} s={tree.size * K} c={c} />
       ))}
-      {CACTI.map(([x, y, size], index) => (
-        <Glyph key={index} name="cactus" x={x} y={y} size={size} color={c.tree} opacity={0.85} />
+      {CACTI.map((cactus, index) => (
+        <Glyph key={index} name="cactus" x={cactus.x * K} y={cactus.y * K} size={cactus.size * K} color={c.tree} opacity={0.85} />
       ))}
       <Glyph name="tumbleweed" x={610} y={660} size={30} color={c.ink} opacity={0.45} />
       <Glyph name="cow" x={375} y={265} size={40} color={c.ink} opacity={0.4} />
